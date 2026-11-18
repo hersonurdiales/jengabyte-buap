@@ -258,6 +258,7 @@ button:focus-visible,input:focus-visible{outline-color:#28699e;outline-offset:3p
 .turn-card .turn-message,.turn-card .wolf-copy p,.question-card h3,.answers button .answer-text{overflow-wrap:anywhere}
 .answers button .answer-text{flex:1}
 @media(max-width:560px){.stability-percent{font-size:8px}.right-rail{overflow:visible}}
+
 .stage-top>span{min-width:0;line-height:1.4;overflow-wrap:anywhere}
 .stage-top button{flex:none}
 .question-meta{min-width:0;flex-wrap:wrap}

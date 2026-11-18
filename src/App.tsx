@@ -6,17 +6,22 @@ import { ArrowLeft, ArrowRight, BookOpen, ChevronDown, CircleHelp, RotateCcw, X 
 
 type Category = { name: string; color: string; mark: string };
 const categories: Category[] = [
-  { name: 'Programación', color: '#e7773e', mark: '01' },
-  { name: 'Bases de datos', color: '#3d8580', mark: '02' },
-  { name: 'Redes', color: '#6387ae', mark: '03' },
-  { name: 'Sistemas operativos', color: '#8766a6', mark: '04' },
-  { name: 'Desarrollo web', color: '#d7798a', mark: '05' },
-  { name: 'Ing. de software', color: '#a1844b', mark: '06' },
-  { name: 'Seguridad', color: '#b85548', mark: '07' },
-  { name: 'General TI', color: '#73806a', mark: '08' },
+  { name: 'Programación', color: '#c96848', mark: '01' },
+  { name: 'Bases de datos', color: '#438477', mark: '02' },
+  { name: 'Redes', color: '#527fa5', mark: '03' },
+  { name: 'Sistemas operativos', color: '#80699c', mark: '04' },
+  { name: 'Desarrollo web', color: '#bd687b', mark: '05' },
+  { name: 'Ing. de software', color: '#a07d3d', mark: '06' },
+  { name: 'Seguridad', color: '#a84f46', mark: '07' },
+  { name: 'General TI', color: '#6e8061', mark: '08' },
 ];
 const playerAvatars = ['🐺', '🦊', '🐼', '🦉', '🐸'];
+const playerAvatarNames = ['lobo', 'zorro', 'panda', 'búho', 'rana'];
+const playerAvatarOptions = playerAvatars.map((_, index) => index);
 const playerColors = ['#bc6446', '#3d8580', '#6387ae', '#8766a6', '#a1844b'];
+const playerColorNames = ['terracota', 'verde', 'azul', 'violeta', 'ocre'];
+const playerColorOptions = playerColors.map((_, index) => index);
+const participantCounts = [2, 3, 4];
 type Question = { q: string; options: string[]; answer: number; explain: string };
 type Difficulty = 'facil' | 'intermedia' | 'dificil';
 const questions: Question[] = [
@@ -215,18 +220,98 @@ function makeQuestionDecks(history: QuestionHistory = loadQuestionHistory()): Qu
     return [level, deck];
   })) as QuestionDecks;
 }
-const difficultyOptions: { id: Difficulty; label: string; hint: string }[] = [
-  { id: 'facil', label: 'Fácil', hint: '48 preguntas · al azar y sin repetir' },
-  { id: 'intermedia', label: 'Intermedia', hint: '48 preguntas · al azar y sin repetir' },
-  { id: 'dificil', label: 'Difícil', hint: '48 preguntas · al azar y sin repetir' },
+const difficultyOptions: { id: Difficulty; label: string; descriptor: string }[] = [
+  { id: 'facil', label: 'Fácil', descriptor: 'Para comenzar' },
+  { id: 'intermedia', label: 'Intermedia', descriptor: 'Equilibrada' },
+  { id: 'dificil', label: 'Difícil', descriptor: 'Reto experto' },
 ];
+const difficultyValues = difficultyOptions.map(option => option.id);
+const questionBankHint = '48 preguntas · al azar y sin repetir';
 const lobitIntro = [
   { label: 'PRESENTACIÓN', text: '¡Hola! Soy Lobit, tu guía. En JengaByte aprenderás computación mientras mantienes la torre en pie.' },
   { label: 'QUÉ VAS A APRENDER', text: 'Explorarás programación, bases de datos, redes, sistemas operativos, desarrollo web, ingeniería de software, seguridad y TI.' },
   { label: 'CÓMO SE JUEGA', text: 'Juegan de 2 a 4 personas por turnos: retira una pieza y responde una pregunta aleatoria. Si aciertas, colócala en la cima; si fallas, retira otra. Las preguntas no se repiten hasta agotar la dificultad elegida. ¡Que no caiga la torre!' },
 ];
-type BlockData = { id: number; level: number; slot: number; cat: number };
-const initialBlocks: BlockData[] = Array.from({ length: 18 * 3 }, (_, id) => ({ id, level: Math.floor(id / 3), slot: id % 3, cat: (id * 5 + Math.floor(id / 3) * 3) % categories.length }));
+type BlockData = { id: number; level: number; slot: number };
+const initialBlocks: BlockData[] = Array.from({ length: 18 * 3 }, (_, id) => ({ id, level: Math.floor(id / 3), slot: id % 3 }));
+const woodTones = ['#c89a62', '#d2a56d', '#bd8e58', '#d8ad78'];
+
+function handleRadioArrowKey<T extends string | number>(
+  event: React.KeyboardEvent<HTMLButtonElement>,
+  values: T[],
+  selected: T,
+  onChange: (value: T) => void,
+) {
+  const direction = event.key === 'ArrowRight' || event.key === 'ArrowDown' ? 1 : event.key === 'ArrowLeft' || event.key === 'ArrowUp' ? -1 : 0;
+  if (!direction) return;
+  event.preventDefault();
+
+  const buttons = [...(event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="radio"]') ?? [])];
+  const start = values.indexOf(selected);
+  for (let step = 1; step <= values.length; step++) {
+    const next = values[(start + direction * step + values.length) % values.length];
+    const button = buttons.find(option => option.dataset.value === String(next));
+    if (!button || button.disabled) continue;
+    onChange(next);
+    button.focus();
+    return;
+  }
+}
+
+function ParticipantCountSelector({ value, onChange }: { value: number; onChange: (count: number) => void }) {
+  return <div className="player-count" role="radiogroup" aria-label="Número de participantes">
+    {participantCounts.map(count => <button type="button" role="radio" data-value={count} aria-checked={value === count} tabIndex={value === count ? 0 : -1} aria-label={`${count} jugadores`} key={count} onClick={() => onChange(count)} onKeyDown={event => handleRadioArrowKey(event, participantCounts, value, onChange)} className={value === count ? 'selected' : ''}>
+      <b>{String(count).padStart(2, '0')}</b><span>jugadores</span>
+    </button>)}
+  </div>;
+}
+
+function DifficultySelector({ value, onChange }: { value: Difficulty; onChange: (difficulty: Difficulty) => void }) {
+  return <div className="difficulty-control">
+    <span className="difficulty-label" id="difficulty-label">DIFICULTAD DE PREGUNTAS</span>
+    <div className="difficulty-picker" role="radiogroup" aria-labelledby="difficulty-label">
+      {difficultyOptions.map(option => <button type="button" role="radio" data-value={option.id} aria-checked={value === option.id} tabIndex={value === option.id ? 0 : -1} key={option.id} onClick={() => onChange(option.id)} onKeyDown={event => handleRadioArrowKey(event, difficultyValues, value, onChange)} className={value === option.id ? 'selected' : ''}>
+        <span>{option.label}</span><small>{option.descriptor}</small>
+      </button>)}
+    </div>
+    <small className="question-bank-hint">{questionBankHint}</small>
+  </div>;
+}
+
+function ParticipantSetupCard({ index, name, avatar, color, active, avatarChoices, colorChoices, onNameChange, onAvatarChange, onColorChange }: {
+  index: number; name: string; avatar: number; color: number; active: boolean; avatarChoices: number[]; colorChoices: number[];
+  onNameChange: (name: string) => void; onAvatarChange: (avatar: number) => void; onColorChange: (color: number) => void;
+}) {
+  const playerNumber = String(index + 1).padStart(2, '0');
+  const occupiedAvatars = avatarChoices.filter((_, player) => player !== index);
+  const occupiedColors = colorChoices.filter((_, player) => player !== index);
+
+  return <div className={`setup-player ${active ? 'current' : ''}`}>
+    <div className="setup-player-name"><span className="player-card-number">JUGADOR {playerNumber}</span>
+      <span className="player-preview" role="img" aria-label={`Vista previa: ${playerAvatars[avatar]} en color ${playerColorNames[color]}`} style={{ '--choice-color': playerColors[color] } as React.CSSProperties}>{playerAvatars[avatar]}</span>
+    </div>
+    <label className="player-name-label" htmlFor={`player-name-${index}`}>Nombre</label>
+    <input className="player-name-input" id={`player-name-${index}`} value={name} placeholder="Escribe un nombre" maxLength={24} autoComplete="off" onChange={event => onNameChange(event.target.value)} />
+    <div className="player-customize">
+      <div className="player-customize-group"><span className="customize-label" id={`avatar-label-${index}`}>ELIGE AVATAR</span>
+        <div className="avatar-picker" role="radiogroup" aria-labelledby={`avatar-label-${index}`}>
+          {playerAvatars.map((emoji, option) => {
+            const disabled = occupiedAvatars.includes(option);
+            return <button type="button" role="radio" data-value={option} aria-checked={avatar === option} tabIndex={avatar === option ? 0 : -1} key={emoji} aria-label={disabled ? `${playerAvatarNames[option]}, ya elegido por otro jugador` : playerAvatarNames[option]} disabled={disabled} className={avatar === option ? 'chosen' : ''} onClick={() => onAvatarChange(option)} onKeyDown={event => handleRadioArrowKey(event, playerAvatarOptions, avatar, onAvatarChange)}>{emoji}</button>;
+          })}
+        </div>
+      </div>
+      <div className="player-customize-group"><span className="customize-label" id={`color-label-${index}`}>COLOR</span>
+        <div className="color-picker" role="radiogroup" aria-labelledby={`color-label-${index}`}>
+          {playerColors.map((hex, option) => {
+            const disabled = occupiedColors.includes(option);
+            return <button type="button" role="radio" data-value={option} aria-checked={color === option} tabIndex={color === option ? 0 : -1} key={hex} aria-label={disabled ? `Color ${playerColorNames[option]}, ya elegido por otro jugador` : `Color ${playerColorNames[option]}`} disabled={disabled} className={color === option ? 'chosen' : ''} style={{ '--choice-color': hex } as React.CSSProperties} onClick={() => onColorChange(option)} onKeyDown={event => handleRadioArrowKey(event, playerColorOptions, color, onColorChange)} />;
+          })}
+        </div>
+      </div>
+    </div>
+  </div>;
+}
 
 function Wolf({ mood, advice, correct }: { mood: 'hey' | 'good' | 'oops' | 'win'; advice?: string; correct?: boolean }) {
   const lines = { hey: '¡Tu turno! Elige un bloque con calma.', good: '¡Bien jugado! Ahora corona la torre.', oops: '¡Ups! Una más y seguimos con el grupo.', win: '¡La torre cayó! ¿Otra ronda?' };
@@ -242,6 +327,10 @@ function TowerPhysics({ blocks, removed, extractingId, physicsActive, falling, o
   const collapsed = useRef(false);
   const previousExtracting = useRef<number | null>(null);
   const safeUntil = useRef(0);
+  const removedSet = new Set(removed);
+  const levelCounts = new Map<number, number>();
+  for (const block of blocks) if (!removedSet.has(block.id)) levelCounts.set(block.level, (levelCounts.get(block.level) ?? 0) + 1);
+  const highestCompletedLevel = Math.max(0, ...[...levelCounts].filter(([, count]) => count === 3).map(([level]) => level));
   useFrame(() => {
     if (previousExtracting.current !== extractingId) { previousExtracting.current = extractingId; warned.current = false; safeUntil.current = performance.now() + 1350; }
     if (!physicsActive || falling || collapsed.current || performance.now() < safeUntil.current) return;
@@ -265,12 +354,11 @@ function TowerPhysics({ blocks, removed, extractingId, physicsActive, falling, o
       const x = horizontal ? 0 : (b.slot - 1) * .92;
       const z = horizontal ? (b.slot - 1) * .92 : 0;
       const y = .16 + b.level * .32;
-      const eligible = b.level < 16;
-      const cat = categories[b.cat];
+      const eligible = b.level < highestCompletedLevel;
       const size: [number, number, number] = horizontal ? [2.8, .32, .92] : [.92, .32, 2.8];
       return <RigidBody key={b.id} ref={body => { if (body) bodies.current.set(b.id, body); else bodies.current.delete(b.id); }} type={physicsActive || falling || b.id === extractingId ? 'dynamic' : 'fixed'} gravityScale={b.id === extractingId ? 0 : 1} colliders="cuboid" position={[x, y, z]} restitution={0} friction={.95} linearDamping={.08} angularDamping={.65}>
         <RoundedBox args={size} radius={.018} smoothness={1} castShadow receiveShadow onClick={eligible && !falling && extractingId === null ? (e) => { e.stopPropagation(); const body = bodies.current.get(b.id); if (body) onPick(b, body); } : undefined}>
-          <meshStandardMaterial color={cat.color} roughness={.92} metalness={0} />
+          <meshStandardMaterial color={woodTones[b.id % woodTones.length]} roughness={.86} metalness={0} />
         </RoundedBox>
       </RigidBody>;
     })}
@@ -292,7 +380,6 @@ function Tower({ blocks, removed, extractingId, physicsActive, falling, onPick, 
 }
 
 function WelcomeTower() {
-  const reduceMotion = useMemo(() => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches, []);
   return <Canvas camera={{ position: [6.5, 5.2, 7.5], fov: 38 }} shadows dpr={[1, 1.5]}>
     <color attach="background" args={['#e8eef6']} />
     <ambientLight intensity={1.05} />
@@ -304,13 +391,13 @@ function WelcomeTower() {
         const x = horizontal ? 0 : (block.slot - 1) * .92;
         const z = horizontal ? (block.slot - 1) * .92 : 0;
         return <RoundedBox key={block.id} args={horizontal ? [2.8, .32, .92] : [.92, .32, 2.8]} radius={.018} smoothness={1} position={[x, .16 + block.level * .32, z]} castShadow receiveShadow>
-          <meshStandardMaterial color={categories[block.cat].color} roughness={.92} metalness={0} />
+          <meshStandardMaterial color={woodTones[block.id % woodTones.length]} roughness={.86} metalness={0} />
         </RoundedBox>;
       })}
       <mesh position={[0, -.12, 0]} receiveShadow><boxGeometry args={[7, .24, 6]} /><meshStandardMaterial color="#d9dfe6" roughness={.9} /></mesh>
     </group>
     <ContactShadows position={[0, -.005, 0]} opacity={.26} blur={2} far={8} />
-    <OrbitControls autoRotate={!reduceMotion} autoRotateSpeed={.75} enablePan={false} minDistance={7} maxDistance={14} minPolarAngle={.5} maxPolarAngle={1.48} target={[0, 3.1, 0]} />
+    <OrbitControls autoRotate={false} enablePan={false} minDistance={7} maxDistance={14} minPolarAngle={.5} maxPolarAngle={1.48} target={[0, 3.1, 0]} />
   </Canvas>;
 }
 
@@ -319,10 +406,12 @@ export default function App() {
   const [avatarChoices, setAvatarChoices] = useState([0, 1, 2, 3]);
   const [colorChoices, setColorChoices] = useState([0, 1, 2, 3]);
   const [playerCount, setPlayerCount] = useState(3);
+  const [setupStep, setSetupStep] = useState<0 | 1 | 2>(0);
+  const [setupPlayerIndex, setSetupPlayerIndex] = useState(0);
   const [difficulty, setDifficulty] = useState<Difficulty>('intermedia');
   const [started, setStarted] = useState(false);
   const [lobitIntroStep, setLobitIntroStep] = useState(0);
-  const [showLobitIntro, setShowLobitIntro] = useState(true);
+  const [showLobitIntro, setShowLobitIntro] = useState(false);
   const [showHowToPlay, setShowHowToPlay] = useState(false);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
   const [showRules, setShowRules] = useState(false);
@@ -331,7 +420,7 @@ export default function App() {
   const [pulledThisTurn, setPulledThisTurn] = useState<BlockData[]>([]);
   const [turn, setTurn] = useState(0);
   const [extractingId, setExtractingId] = useState<number | null>(null);
-  const [towerState, setTowerState] = useState<'steady' | 'fallen'>('steady');
+  const [towerState, setTowerState] = useState<'steady' | 'moving' | 'fallen'>('steady');
   const [physicsActive, setPhysicsActive] = useState(false);
   const [showFallOverlay, setShowFallOverlay] = useState(false);
   const [gameVersion, setGameVersion] = useState(0);
@@ -391,14 +480,15 @@ export default function App() {
   }, [showExitConfirm]);
 
   useEffect(() => {
-    if (!showLobitIntro) {
-      document.querySelector<HTMLButtonElement>('.player-count button')?.focus({ preventScroll: true });
-      return;
-    }
+    if (!showLobitIntro) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = previousOverflow; };
   }, [showLobitIntro]);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+  }, [started]);
 
   function advanceLobitIntro() {
     if (lobitIntroStep < lobitIntro.length - 1) {
@@ -408,7 +498,7 @@ export default function App() {
     setShowLobitIntro(false);
   }
 
-  function startGame() { setPhase('pick'); setTowerState('steady'); setLastMessage(`${currentName}, retira una pieza y observa cómo se redistribuye el peso.`); setStarted(true); }
+  function startGame() { window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior }); setPhase('pick'); setTowerState('steady'); setLastMessage(`${currentName}, retira una pieza y observa cómo se redistribuye el peso.`); setStarted(true); }
   function pickBlock(block: BlockData, body: RapierRigidBody) {
     if (phase !== 'pick' || extractingId !== null) return;
     const horizontal = block.level % 2 === 0;
@@ -426,7 +516,9 @@ export default function App() {
   function onTipping() { setTowerState('moving'); setLastMessage('La torre se está desplazando.'); }
   function beginCollapse() {
     if (pickTimer.current) clearTimeout(pickTimer.current);
-    setExtractingId(null); setFalling(true); setTowerState('fallen'); setPhase('over'); setMood('win'); setLastMessage(`${currentName} hizo caer la torre.`);
+    const loser = currentName;
+    const winner = score[(turn - 1 + playerCount) % playerCount]?.name || `Jugador ${(turn - 1 + playerCount) % playerCount + 1}`;
+    setExtractingId(null); setFalling(true); setTowerState('fallen'); setPhase('over'); setMood('win'); setLastMessage(`${loser} hizo caer la torre. ${winner} gana la partida.`);
     collapseTimer.current = setTimeout(() => setShowFallOverlay(true), 1400);
   }
   function answer(index: number) {
@@ -445,28 +537,29 @@ export default function App() {
     setBlocks(current => [...current, ...newTopBlocks]); setPulledThisTurn([]);
     setTurn(t => (t + 1) % playerCount); setPhase('pick'); setPicked(null); setQuestion(null); setChosen(null); setWrongPull(false); setMood('hey'); setLastMessage('Tu turno. Elige un bloque con calma.');
   }
-  function reset() { if (pickTimer.current) clearTimeout(pickTimer.current); if (collapseTimer.current) clearTimeout(collapseTimer.current); setGameVersion(v => v + 1); setBlocks(initialBlocks); setRemoved([]); setPulledThisTurn([]); setTurn(0); setExtractingId(null); setTowerState('steady'); setPhysicsActive(false); setShowFallOverlay(false); setFalling(false); setPhase('pick'); setPicked(null); setQuestion(null); setChosen(null); setWrongPull(false); setMood('hey'); setLastMessage('Un salón, una torre y un reto por turno.'); }
+  function reset() { window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior }); if (pickTimer.current) clearTimeout(pickTimer.current); if (collapseTimer.current) clearTimeout(collapseTimer.current); setGameVersion(v => v + 1); setBlocks(initialBlocks); setRemoved([]); setPulledThisTurn([]); setTurn(0); setExtractingId(null); setTowerState('steady'); setPhysicsActive(false); setShowFallOverlay(false); setFalling(false); setPhase('pick'); setPicked(null); setQuestion(null); setChosen(null); setWrongPull(false); setMood('hey'); setLastMessage('Un salón, una torre y un reto por turno.'); }
   function returnToMenu() { reset(); setStarted(false); setShowExitConfirm(false); }
   const options = question?.options ?? [];
-  const turnStability = Math.max(10, 100 - removed.length * 3);
-  const stabilityValue = towerState === 'fallen' ? 0 : towerState === 'moving' ? Math.max(12, turnStability - 18) : turnStability;
+  const winnerName = score[(turn - 1 + playerCount) % playerCount]?.name || `Jugador ${(turn - 1 + playerCount) % playerCount + 1}`;
+  const activeAvatarChoices = avatarChoices.slice(0, playerCount);
+  const activeColorChoices = colorChoices.slice(0, playerCount);
 
-  return <main className="app-shell">
-    {showLobitIntro&&<div className="lobit-welcome-backdrop"><section className="lobit-welcome-dialog" role="dialog" aria-modal="true" aria-labelledby="lobit-welcome-title" aria-describedby="lobit-welcome-text"><div className="lobit-welcome-mascot"><img src="/images/lobit.webp" alt=""/><b>LOBIT</b></div><div className="lobit-welcome-copy"><div className="lobit-welcome-kicker">JENGABYTE · BUAP <span>{lobitIntroStep + 1} / 3</span></div><div className="lobit-welcome-progress" aria-hidden="true">{lobitIntro.map((_,step)=><i key={step} className={lobitIntroStep >= step ? 'active' : ''}/>)}</div><h2 id="lobit-welcome-title">{lobitIntro[lobitIntroStep].label}</h2><p id="lobit-welcome-text" aria-live="polite">{lobitIntro[lobitIntroStep].text}</p><button className="lobit-welcome-next" type="button" autoFocus onClick={advanceLobitIntro}>{lobitIntroStep < lobitIntro.length - 1 ? 'Continuar' : 'Entrar al menú'} <ArrowRight size={16}/></button></div></section></div>}
+  return <main className={`app-shell ${started ? 'is-playing' : 'is-setup'}`}>
+    {showLobitIntro&&<div className="lobit-welcome-backdrop"><section className="lobit-welcome-dialog" role="dialog" aria-modal="true" aria-labelledby="lobit-welcome-title" aria-describedby="lobit-welcome-text"><div className="lobit-welcome-mascot"><img src="/images/lobit.webp" alt=""/><b>LOBIT</b></div><div className="lobit-welcome-copy"><div className="lobit-welcome-kicker"><span>JENGABYTE</span><img src="/images/buap-wordmark.svg" alt="BUAP"/><span>{lobitIntroStep + 1} / 3</span></div><div className="lobit-welcome-progress" aria-hidden="true">{lobitIntro.map((_,step)=><i key={step} className={lobitIntroStep >= step ? 'active' : ''}/>)}</div><h2 id="lobit-welcome-title">{lobitIntro[lobitIntroStep].label}</h2><p id="lobit-welcome-text" aria-live="polite">{lobitIntro[lobitIntroStep].text}</p><button className="lobit-welcome-next" type="button" autoFocus onClick={advanceLobitIntro}>{lobitIntroStep < lobitIntro.length - 1 ? 'Continuar' : 'Entrar al menú'} <ArrowRight size={16}/></button></div></section></div>}
     <div className="app-content" inert={showLobitIntro || undefined}>
-    <header className="topbar"><a className="brand" href="#" aria-label="Jenga BUAP inicio"><span className="brand-mark">J</span><span>JENGABYTE <b>BUAP</b></span></a><div className="top-context"><span className="live-dot" /> RETO DE AULA <i>/</i> COMPUTACIÓN</div><div className="session-badge">PARTIDA LOCAL <span>·</span> HASTA 4</div></header>
+    <header className="topbar"><a className="brand" href="#" aria-label="JengaByte, inicio"><img className="brand-symbol" src="/images/jengabyte-mark.svg" alt=""/><span className="brand-product">JENGABYTE</span><img className="buap-wordmark" src="/images/buap-wordmark-white.svg" alt="BUAP" /></a><div className="top-context"><span className="live-dot" /> RETO DE AULA <i>/</i> COMPUTACIÓN</div><div className="session-badge">PARTIDA LOCAL <span>·</span> HASTA 4</div></header>
     {showExitConfirm&&<div className="how-to-backdrop" onClick={()=>setShowExitConfirm(false)}><section className="exit-dialog" role="alertdialog" aria-modal="true" aria-labelledby="exit-title" aria-describedby="exit-description" onClick={event=>event.stopPropagation()}><button className="how-to-close" type="button" aria-label="Cerrar confirmación" autoFocus onClick={()=>setShowExitConfirm(false)}><X size={18}/></button><div className="how-to-kicker">PARTIDA EN CURSO</div><h2 id="exit-title">¿Volver al menú principal?</h2><p id="exit-description">Si sales ahora, perderás el progreso de esta partida.</p><div className="exit-actions"><button type="button" className="stay-button" onClick={()=>setShowExitConfirm(false)}>Seguir jugando</button><button type="button" className="exit-button" onClick={returnToMenu}>Salir al menú</button></div></section></div>}
-    {showHowToPlay&&<div className="how-to-backdrop" onClick={()=>setShowHowToPlay(false)}><section className="how-to-dialog" role="dialog" aria-modal="true" aria-labelledby="how-to-title" onClick={event=>event.stopPropagation()}><button className="how-to-close" type="button" aria-label="Cerrar reglas" autoFocus onClick={()=>setShowHowToPlay(false)}><X size={18}/></button><div className="how-to-kicker">JENGABYTE · BUAP</div><h2 id="how-to-title">Una torre, preguntas y buen pulso.</h2><p>JengaByte combina una partida local de Jenga con preguntas de computación. Juegan de 2 a 4 personas por turnos en el mismo equipo. Antes de empezar, elijan una dificultad para ajustar el nivel de las preguntas.</p><ol><li><b>Elige una pieza</b><span>Retira un bloque de cualquier nivel debajo de los tres superiores.</span></li><li><b>Responde el reto</b><span>El tema de la pregunta se elige al azar, sin depender del color de la pieza.</span></li><li><b>Corona la torre</b><span>Si aciertas, coloca la pieza arriba. Si fallas, saca una pieza adicional antes de pasar el turno.</span></li></ol><p className="how-to-ending">Cada dificultad tiene 48 preguntas. Se mezclan al azar y no se repiten en esta pestaña hasta agotar las 48; después se vuelven a mezclar. La partida termina cuando la torre cae. ¡Gana quien logre mantenerla en pie!</p><div className="topic-list" aria-label="Temas de las preguntas">{categories.map(category=><span key={category.name}><i style={{background:category.color}}/>{category.name}</span>)}</div></section></div>}
-    {!started ? <section className="welcome"><div className="welcome-copy"><div className="eyebrow"><span>FACULTAD DE CIENCIAS DE LA COMPUTACIÓN</span><span className="eyebrow-line" /></div><h1>Piensa antes<br/>de <em>mover.</em></h1><p>Retira un bloque, responde una pregunta de computación y vuelve a colocarlo arriba. Gana quien mantenga la torre en pie.</p><div className="setup"><div className="setup-title"><span>01</span> JUGADORES <span className="setup-note">HASTA 4 · MISMO ORDENADOR</span></div><div className="player-count">{[2,3,4].map(n=><button key={n} onClick={()=>setPlayerCount(n)} className={playerCount===n?'selected':''}>{n}</button>)}</div><div className="difficulty-control"><span className="difficulty-label">DIFICULTAD DE PREGUNTAS</span><div className="difficulty-picker" role="group" aria-label="Dificultad de las preguntas">{difficultyOptions.map(option=><button type="button" key={option.id} aria-pressed={difficulty===option.id} className={difficulty===option.id?'selected':''} onClick={()=>setDifficulty(option.id)}>{option.label}</button>)}</div><small>{difficultyOptions.find(option=>option.id===difficulty)?.hint}</small></div><div className="name-fields">{Array.from({length:playerCount},(_,i)=><div className="setup-player" key={i}><div className="setup-player-name"><span>{String(i+1).padStart(2,'0')}</span><input aria-label={`Nombre del jugador ${i+1}`} value={names[i]} placeholder={`Jugador ${i+1}`} onChange={e=>setNames(prev=>prev.map((v,j)=>j===i?e.target.value:v))}/><span className="player-preview" role="img" aria-label={`Vista previa: ${playerAvatars[avatarChoices[i]]} en ${['terracota','verde','azul','violeta','ocre'][colorChoices[i]]}`} style={{'--choice-color':playerColors[colorChoices[i]]} as React.CSSProperties}>{playerAvatars[avatarChoices[i]]}</span></div><div className="player-customize"><div className="avatar-picker" role="group" aria-label={`Avatar del jugador ${i+1}`}>{playerAvatars.map((avatar,option)=><button type="button" key={avatar} aria-label={`Avatar ${['lobo','zorro','panda','búho','rana'][option]}${avatarChoices.some((selected,j)=>j!==i&&j<playerCount&&selected===option)?' (ya elegido)':''}`} aria-pressed={avatarChoices[i]===option} disabled={avatarChoices.some((selected,j)=>j!==i&&j<playerCount&&selected===option)} className={avatarChoices[i]===option?'chosen':''} onClick={()=>setAvatarChoices(prev=>prev.map((v,j)=>j===i?option:v))}>{avatar}</button>)}</div><div className="color-picker" role="group" aria-label={`Color del jugador ${i+1}`}>{playerColors.map((color,option)=><button type="button" key={color} aria-label={`Color ${['terracota','verde','azul','violeta','ocre'][option]}${colorChoices.some((selected,j)=>j!==i&&j<playerCount&&selected===option)?' (ya elegido)':''}`} aria-pressed={colorChoices[i]===option} disabled={colorChoices.some((selected,j)=>j!==i&&j<playerCount&&selected===option)} className={colorChoices[i]===option?'chosen':''} style={{'--choice-color':color} as React.CSSProperties} onClick={()=>setColorChoices(prev=>prev.map((v,j)=>j===i?option:v))}/>)}</div></div></div>)}</div><button className="start-button" onClick={startGame}>Empezar partida <ArrowRight size={17}/></button><button type="button" className="how-to-button" onClick={()=>setShowHowToPlay(true)}><CircleHelp size={15}/> Cómo se juega</button></div><div className="welcome-bottom"><BookOpen size={15}/> 8 TEMAS <span>·</span> 48 PREGUNTAS POR DIFICULTAD</div></div><div className="welcome-art"><div className="art-tag">JENGA <span>·</span> RETO DE COMPUTACIÓN</div><div className="welcome-tower" role="img" aria-label="Torre 3D de Jenga con 54 bloques"><WelcomeTower /></div><div className="welcome-mascot"><img src="/images/lobit.webp" alt="Lobit, mascota y guía del juego"/><b className="welcome-mascot-name">LOBIT</b></div><div className="tower-piece-count"><b>54</b><span>PIEZAS<br/>EN JUEGO</span></div></div></section> : <>
+    {showHowToPlay&&<div className="how-to-backdrop" onClick={()=>setShowHowToPlay(false)}><section className="how-to-dialog" role="dialog" aria-modal="true" aria-labelledby="how-to-title" onClick={event=>event.stopPropagation()}><button className="how-to-close" type="button" aria-label="Cerrar reglas" autoFocus onClick={()=>setShowHowToPlay(false)}><X size={18}/></button><div className="how-to-kicker"><img src="/images/buap-wordmark.svg" alt="BUAP"/></div><h2 id="how-to-title">Una torre, preguntas y buen pulso.</h2><p>JengaByte combina una partida local de Jenga con preguntas de computación. Juegan de 2 a 4 personas por turnos en el mismo equipo. Antes de empezar, elijan una dificultad para ajustar el nivel de las preguntas.</p><ol><li><b>Elige una pieza</b><span>Retira una pieza de cualquier nivel por debajo de la fila completa más alta.</span></li><li><b>Responde el reto</b><span>El tema de la pregunta se elige al azar, sin depender del acabado de madera.</span></li><li><b>Corona la torre</b><span>Colócala arriba, perpendicular a la fila anterior. Completa una fila de tres antes de iniciar la siguiente.</span></li></ol><p className="how-to-ending">Regla de esta variante: si fallas, retira una pieza adicional antes de pasar el turno. La partida termina cuando la torre cae: pierde quien la derriba y gana la persona anterior. Las 48 preguntas de cada dificultad se mezclan y no se repiten hasta agotar el mazo.</p><div className="topic-list" aria-label="Temas de las preguntas">{categories.map(category=><span key={category.name}><i style={{background:category.color}}/>{category.name}</span>)}</div></section></div>}
+    {!started ? <section className="welcome"><div className="welcome-copy"><div className="eyebrow"><span>FACULTAD DE CIENCIAS DE LA COMPUTACIÓN</span><span className="eyebrow-line" /></div><h1>Piensa antes<br/>de <em>mover.</em></h1><p>Retira un bloque, responde una pregunta de computación y vuelve a colocarlo arriba. Gana quien mantenga la torre en pie.</p><div className={`setup setup-step-${setupStep}`}><div className="setup-title"><span>{String(setupStep + 1).padStart(2, '0')}</span> {setupStep === 0 ? 'PARTICIPANTES' : setupStep === 1 ? 'DIFICULTAD' : 'JUGADORES'} <span className="setup-note">PASO {setupStep + 1} DE 3</span>{setupStep > 0 && <button type="button" className="setup-back" onClick={() => setSetupStep(step => (step - 1) as 0 | 1 | 2)} aria-label="Volver al paso anterior"><ArrowLeft size={12}/> Atrás</button>}</div><ParticipantCountSelector value={playerCount} onChange={count => { setPlayerCount(count); setSetupPlayerIndex(0); }} /><DifficultySelector value={difficulty} onChange={setDifficulty} /><div className="setup-step-hint" aria-live="polite">{setupStep === 0 ? <>Grupo seleccionado <b>{playerCount} jugadores</b></> : <>Nivel seleccionado <b>{difficultyOptions.find(option => option.id === difficulty)?.label}</b></>}</div><div className="participant-config"><div className="setup-player-nav" role="group" aria-label="Navegar participantes"><button type="button" aria-label="Participante anterior" disabled={setupPlayerIndex === 0} onClick={() => setSetupPlayerIndex(index => Math.max(0, index - 1))}>‹ <span>Anterior</span></button><b>JUGADOR {String(setupPlayerIndex + 1).padStart(2, '0')} <i>/</i> {String(playerCount).padStart(2, '0')}</b><button type="button" aria-label="Siguiente participante" disabled={setupPlayerIndex >= playerCount - 1} onClick={() => setSetupPlayerIndex(index => Math.min(playerCount - 1, index + 1))}><span>Siguiente</span> ›</button></div><div className="name-fields">{Array.from({ length: playerCount }, (_, index) => <ParticipantSetupCard key={index} index={index} name={names[index]} avatar={avatarChoices[index]} color={colorChoices[index]} active={setupPlayerIndex === index} avatarChoices={activeAvatarChoices} colorChoices={activeColorChoices} onNameChange={name => setNames(current => current.map((value, player) => player === index ? name : value))} onAvatarChange={avatar => setAvatarChoices(current => current.map((value, player) => player === index ? avatar : value))} onColorChange={color => setColorChoices(current => current.map((value, player) => player === index ? color : value))} />)}</div></div><button className="start-button" onClick={() => setupStep < 2 ? setSetupStep(step => (step + 1) as 0 | 1 | 2) : startGame()}>{setupStep === 0 ? 'Continuar a dificultad' : setupStep === 1 ? 'Configurar jugadores' : 'Empezar partida'} <ArrowRight size={17}/></button><button type="button" className="how-to-button" onClick={()=>setShowHowToPlay(true)}><CircleHelp size={15}/> Cómo se juega</button></div><div className="welcome-bottom"><BookOpen size={15}/> 8 TEMAS <span>·</span> 48 PREGUNTAS POR DIFICULTAD</div></div><div className="welcome-art"><div className="art-tag"><img src="/images/buap-wordmark.svg" alt="BUAP"/><span className="art-brand-name">JENGABYTE</span><small>RETO DE COMPUTACIÓN</small></div><div className="welcome-tower" role="img" aria-label="Torre 3D de Jenga con 54 bloques"><WelcomeTower /></div><div className="welcome-mascot"><img src="/images/lobit.webp" alt="Lobit, mascota y guía del juego"/><b className="welcome-mascot-name">LOBIT</b></div><div className="tower-piece-count"><b>54</b><span>PIEZAS<br/>EN JUEGO</span></div></div></section> : <>
       <div className="game-heading"><div><div className="eyebrow"><span>FACULTAD DE CIENCIAS DE LA COMPUTACIÓN</span><span className="eyebrow-line"/></div><h1>Jenga<em>Byte.</em></h1></div><div className="round-info"><span>RONDA</span><b>{String(Math.floor(removed.length / playerCount) + 1).padStart(2,'0')}</b><button className="menu-button" onClick={()=>setShowExitConfirm(true)} title="Volver al menú principal"><ArrowLeft size={14}/> MENÚ</button><button onClick={reset} title="Reiniciar partida"><RotateCcw size={15}/> REINICIAR</button></div></div>
       <section className="game-layout"><aside className="left-rail"><div className="rail-label">EN LA MESA <span>0{playerCount}</span></div><div className="players">{score.map((p,i)=><div className={`player ${p.active?'active':''}`} key={i}><span className="player-avatar" style={{'--player':p.color} as React.CSSProperties} aria-label={`Avatar de ${p.name}`}>{p.avatar}</span><span className="player-name">{p.name || `Jugador ${i+1}`}</span>{p.active&&<span className="turn-mark">JUEGA</span>}<b>{removed.filter((_,j)=>j%playerCount===i).length}</b></div>)}</div><div className="rail-divider"/><div className="rail-label">CATEGORÍAS <CircleHelp size={14}/></div><div className="category-list">{categories.map(c=><div key={c.name}><i style={{background:c.color}}/>{c.name}</div>)}</div><div className="small-tip"><span>↗</span> Gira la vista arrastrando el mouse.</div></aside>
-        <div className="stage"><div className="stage-top"><span><i/> {phase==='pick'?'TU TURNO: HAZ CLIC EN UNA PIEZA':phase==='extracting'?'SACANDO LA PIEZA…':phase==='over'?'FIN DE LA PARTIDA':'RESPONDE LA PREGUNTA'}</span><button aria-expanded={showRules} onClick={()=>setShowRules(v=>!v)}>CÓMO JUGAR <ChevronDown size={14}/></button></div>{showRules&&<div className="rules-popover"><b>Tu turno en 3 pasos</b><span>1. Saca una pieza con un clic.</span><span>2. Responde la pregunta aleatoria.</span><span>3. Si aciertas, colócala arriba. Si fallas, saca una más.</span></div>}<div className="tower-stage-row"><div className={`tower-status vertical ${towerState}`}><div className="status-head"><span>ESTABILIDAD</span><b>{towerState==='fallen'?'CAÍDA':towerState==='moving'?'RIESGO':'ESTABLE'}</b></div><small className="stability-percent">{stabilityValue}%</small><div className="vertical-meter" role="meter" aria-label="Estabilidad de la torre" aria-valuemin={0} aria-valuemax={100} aria-valuenow={stabilityValue} aria-valuetext={`${stabilityValue}% de estabilidad`}><i style={{height:`${stabilityValue}%`}}/></div><div className="vertical-count"><b>{blocks.length-removed.length}</b><span>PIEZAS<br/>EN TORRE</span></div><small className="vertical-initial">54 INICIALES</small></div><div className="canvas-wrap"><Tower key={gameVersion} blocks={blocks} removed={removed} extractingId={extractingId} physicsActive={physicsActive} falling={falling} onPick={pickBlock} onTipping={onTipping} onCollapse={beginCollapse}/>{phase==='over'&&showFallOverlay&&<div className="fall-overlay"><span>FIN DE PARTIDA</span><h2>La torre <em>cayó.</em></h2><p>{currentName} hizo el último movimiento.</p><button onClick={reset}>Jugar otra vez <RotateCcw size={16}/></button></div>}</div></div><div className="stage-caption"><span><b>1</b> CLIC: SACA UNA PIEZA</span><span><b>2</b> RESPONDE SU PREGUNTA</span><span><b>3</b> ACIERTA: COLOCA ARRIBA · FALLA: SACA OTRA</span></div></div>
+        <div className="stage"><div className="stage-top"><span><i/> {phase==='pick'?'TU TURNO: HAZ CLIC EN UNA PIEZA':phase==='extracting'?'SACANDO LA PIEZA…':phase==='over'?'FIN DE LA PARTIDA':'RESPONDE LA PREGUNTA'}</span><button aria-expanded={showRules} onClick={()=>setShowRules(v=>!v)}>CÓMO JUGAR <ChevronDown size={14}/></button></div>{showRules&&<div className="rules-popover"><b>Tu turno en 3 pasos</b><span>1. Saca una pieza con un clic.</span><span>2. Responde la pregunta aleatoria.</span><span>3. Si aciertas, colócala arriba. Si fallas, saca una más.</span></div>}<div className="tower-stage-row"><div className={`tower-status vertical ${towerState}`}><div className="status-head"><span>TORRE</span><b>{towerState==='fallen'?'CAÍDA':towerState==='moving'?'SE MUEVE':'ESTABLE'}</b></div><div className="vertical-count"><b>{blocks.length-removed.length}</b><span>PIEZAS<br/>EN TORRE</span></div><small className="vertical-initial">54 INICIALES</small></div><div className="canvas-wrap"><Tower key={gameVersion} blocks={blocks} removed={removed} extractingId={extractingId} physicsActive={physicsActive} falling={falling} onPick={pickBlock} onTipping={onTipping} onCollapse={beginCollapse}/>{phase==='over'&&showFallOverlay&&<div className="fall-overlay"><span>FIN DE PARTIDA</span><h2>La torre <em>cayó.</em></h2><p>{currentName} derribó la torre. <b>{winnerName} gana.</b></p><button onClick={reset}>Jugar otra vez <RotateCcw size={16}/></button></div>}</div></div><div className="stage-caption"><span><b>1</b> CLIC: SACA UNA PIEZA</span><span><b>2</b> RESPONDE SU PREGUNTA</span><span><b>3</b> ACIERTA: COLOCA ARRIBA · FALLA: SACA OTRA</span></div></div>
         <aside className="right-rail"><div className="turn-card"><div className="turn-kicker"><span className="live-dot"/> TURNO ACTUAL</div><h2>{currentName}<span>.</span></h2><p className="turn-message">{lastMessage}</p><Wolf mood={mood} advice={phase==='feedback'?question?.explain:undefined} correct={chosen===question?.answer}/></div>{(phase==='question'||phase==='feedback')&&question&&<div className={`question-card ${phase==='feedback'?'answered':''}`}>
           <div className="question-meta"><span style={{background:'#6387ae'}}/>RETO ALEATORIO<b>{phase==='feedback'?'REVISA TU RESPUESTA':'ELIGE UNA RESPUESTA'}</b></div><h3>{question.q}</h3>
           <div className="answers">{options.map((option,i)=><button key={i} onClick={()=>answer(i)} disabled={chosen!==null} className={phase==='feedback'&&i===question.answer?'correct':phase==='feedback'&&i===chosen?'incorrect':''}><span className="answer-letter">{String.fromCharCode(65+i)}</span><span className="answer-text">{option}</span>{phase==='feedback'&&i===question.answer&&<span className="answer-badge">✓ Correcta</span>}{phase==='feedback'&&i===chosen&&i!==question.answer&&<span className="answer-badge wrong">✕ Incorrecta</span>}</button>)}</div>
           {phase==='feedback'&&<button className="continue-button" onClick={advance}>{chosen===question.answer?`Colocar ${pulledThisTurn.length} ${pulledThisTurn.length===1?'bloque':'bloques'} y pasar turno`:!wrongPull?'Retirar otro bloque':'Colocar bloques y pasar turno'} <ArrowRight size={16}/></button>}
         </div>}{phase==='extracting'&&<div className="instruction-card extracting-card"><div className="instruction-number">↔</div><div><b>Sacando el bloque</b><p>Espera un momento; observa si la torre se mueve.</p></div></div>}{phase==='pick'&&<div className="instruction-card"><div className="instruction-number">{wrongPull?'!':'01'}</div><div><b>{wrongPull?'Una pieza más':'Elige un bloque'}</b><p>{wrongPull?'Retira un bloque para cerrar este turno.':'Toca cualquier bloque de los niveles inferiores.'}</p></div></div>}</aside>
-      </section><footer className="game-footer"><span>JENGABYTE BUAP <i>·</i> RETO DE LOBIT</span><span>UNA PARTIDA LOCAL <i>·</i> SIN CONEXIÓN</span></footer></>}
+      </section><footer className="game-footer"><span>JENGABYTE <img src="/images/buap-wordmark.svg" alt="BUAP"/> <i>·</i> RETO DE LOBIT</span><span>UNA PARTIDA LOCAL <i>·</i> SIN CONEXIÓN</span></footer></>}
     </div>
   </main>;
 }

@@ -1,0 +1,393 @@
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[spanish,mexico]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[letterpaper,margin=2.25cm,headheight=15pt]{geometry}
+\usepackage{microtype}
+\usepackage{booktabs,tabularx,longtable,array}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{graphicx}
+
+\definecolor{BuapNavy}{HTML}{122E48}
+\definecolor{Brick}{HTML}{C96848}
+\definecolor{Paper}{HTML}{F5F3ED}
+\definecolor{Muted}{HTML}{536B7E}
+\hypersetup{colorlinks=true,linkcolor=BuapNavy,urlcolor=Brick,citecolor=BuapNavy,
+  pdftitle={JengaByte BUAP: especificación y backlog},
+  pdfauthor={José Raúl Soriano Cazabal y Herson Javier Urdiales de la Cruz}}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{JengaByte BUAP}
+\rhead{Especificación y backlog}
+\cfoot{\thepage}
+\titleformat{\section}{\Large\bfseries\color{BuapNavy}}{\thesection}{.7em}{}
+\titleformat{\subsection}{\large\bfseries\color{BuapNavy}}{\thesubsection}{.7em}{}
+\setlist{itemsep=2pt,topsep=4pt}
+\renewcommand{\arraystretch}{1.2}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcommand{\status}[1]{\textcolor{Brick}{\textbf{#1}}}
+
+\begin{document}
+
+\pagenumbering{alph}
+\begin{titlepage}
+\centering
+\vspace*{1.7cm}
+{\Large\bfseries\color{BuapNavy} FACULTAD DE CIENCIAS DE LA COMPUTACIÓN\par}
+\vspace{.5cm}
+\IfFileExists{../../public/images/logo-buap.pdf}{
+  \includegraphics[height=1.45cm]{../../public/images/logo-buap.pdf}\par
+  \vspace{.5cm}
+}{}
+\vspace{1.6cm}
+{\Huge\bfseries Jenga\textcolor{Brick}{Byte}\par}
+\vspace{.35cm}
+{\LARGE Especificación del producto y backlog priorizado\par}
+\vspace{1.2cm}
+{\large Proyecto integrador · Unidad III\par}
+\vspace{.4cm}
+{\large Propuesta de evolución hacia un juego educativo dinámico\par}
+\vfill
+\begin{tabular}{c}
+José Raúl Soriano Cazabal\\
+Herson Javier Urdiales de la Cruz
+\end{tabular}
+\vfill
+{\large Versión 0.2 · \today\par}
+\vspace{.5cm}
+{\small El uso institucional del logotipo BUAP queda pendiente de autorización.\par}
+\end{titlepage}
+
+\pagenumbering{roman}
+\tableofcontents
+\clearpage
+\pagenumbering{arabic}
+
+\section{Resumen ejecutivo}
+
+JengaByte BUAP es un juego educativo local que combina una torre tridimensional de bloques, preguntas de computación y turnos entre dos y cuatro participantes. La aplicación ya permite configurar jugadores, elegir dificultad, retirar bloques con interacción 3D, responder preguntas y observar la física de la torre.
+
+El documento de referencia, \emph{Sistema web para gestionar actividades universitarias}, organizaba el trabajo en contexto, actores, requisitos, historias, prioridades y pruebas. Este documento conserva esa estructura de análisis y trazabilidad, pero redefine el producto: la meta ya no es administrar actividades universitarias; es construir una partida móvil, legible y dinámica alrededor de una torre interactiva.
+
+La dirección propuesta considera \emph{dinámico} un juego que responde a cada movimiento: la torre cambia, el riesgo se vuelve visible, el reto educativo aparece dentro del turno y el resultado modifica el siguiente estado de la partida. Las reglas y mecánicas adicionales descritas como propuestas deberán validarse con estudiantes y docentes antes de convertirse en compromiso de alcance.
+
+\section{Contexto y problema}
+
+En un repaso académico convencional, las preguntas pueden sentirse separadas de la actividad social. JengaByte busca integrarlas en una acción física fácil de entender: elegir una pieza, sostener la tensión de la torre, resolver un reto y continuar la ronda. La aplicación debe funcionar bien cuando varias personas comparten un teléfono o una tableta, con turnos claros y controles táctiles amplios.
+
+\subsection{Oportunidad}
+El prototipo contiene una base concreta: React, TypeScript, Vite, Three.js, React Three Fiber y Rapier; 54 bloques organizados en 18 niveles; preguntas por dificultad; selección de 2--4 jugadores; y una partida local sin cuentas. La evolución debe conservar esa identidad y convertir cada turno en una secuencia corta de acción, decisión, consecuencia y respuesta visual.
+
+\subsection{Objetivo del producto}
+Ofrecer una partida local de Jenga educativo en la que el grupo pueda configurar jugadores rápidamente, entender qué hacer sin explicación externa, seleccionar bloques válidos con toque, responder retos de computación y reconocer quién ganó cuando la torre cae.
+
+\subsection{Objetivos de producto propuestos}
+\begin{itemize}
+  \item Lograr que una persona nueva inicie una partida en menos de 60 segundos.
+  \item Mantener una ronda comprensible sin depender de tutorial obligatorio.
+  \item Hacer que la torre, el turno y la acción siguiente sean visibles en teléfonos desde 320 px de ancho.
+  \item Dar retroalimentación inmediata al movimiento, a la respuesta y al cambio de turno.
+  \item Medir en una prueba con usuarios si el grupo entiende las reglas y si desea jugar otra ronda.
+\end{itemize}
+Las metas y umbrales anteriores son objetivos de evaluación propuestos, no resultados medidos.
+
+\section{Actores y necesidades}
+
+\begin{tabularx}{.95\linewidth}{@{}p{.17\linewidth}YY@{}}
+\toprule
+\textbf{Actor} & \textbf{Descripción} & \textbf{Necesidad principal} \\
+\midrule
+Participante & Estudiante o integrante del grupo que juega en el dispositivo compartido. & Saber cuándo le toca, elegir una pieza permitida, responder el reto y entender el efecto de su acción. \\
+Facilitador (opcional) & Docente o persona que inicia una partida grupal. & Configurar el grupo y explicar las reglas sin administrar cuentas ni datos personales. \\
+Lobit & Guía visual del producto. & Dar instrucciones breves y consistentes sin bloquear el acceso a la partida. \\
+\bottomrule
+\end{tabularx}
+
+No se propone un actor administrador en línea: el producto descrito es local y no muestra cuentas, catálogo remoto ni panel de coordinación.
+
+\section{Alcance}
+
+\subsection{Incluido en la versión local actual o en su evolución inmediata}
+\begin{itemize}
+  \item Configuración de 2, 3 o 4 participantes, con nombre, avatar y color.
+  \item Selección de dificultad y preguntas de computación agrupadas por nivel.
+  \item Torre de 54 bloques en 18 niveles con orientación alternada.
+  \item Interacción con la torre, animación de extracción, respuesta, retroalimentación y cambio de turno.
+  \item Indicadores de estabilidad, piezas y jugador activo.
+  \item Fin de partida, identificación del resultado y opción de volver a jugar.
+  \item Diseño responsivo con prioridad en teléfono y soporte para escritorio.
+\end{itemize}
+
+\subsection{Fuera de alcance hasta validación}
+\begin{itemize}
+  \item Juego en línea, emparejamiento remoto, perfiles y clasificación global.
+  \item Inicio de sesión, almacenamiento de datos personales o administración institucional.
+  \item Temporizadores, cartas de evento, poderes, puntuación por rachas o modos de torneo.
+  \item Integración con servicios externos, notificaciones o publicación de contenido por docentes.
+\end{itemize}
+Estas características podrían hacer más dinámica una partida, pero no deben implementarse como requisitos aprobados sin revisar su valor y efecto en las reglas.
+
+\section{Reglas del juego}
+
+\subsection{Reglas físicas de referencia}
+Las reglas clásicas de Hasbro describen una torre de 54 bloques en grupos de tres por nivel, con cada nivel perpendicular al anterior. En el turno se retira un bloque situado debajo del nivel completo más alto, se usa una mano a la vez y se apila el bloque arriba en ángulo recto respecto al nivel inferior. Se termina la partida cuando la torre cae; gana la última persona que completó su movimiento sin derribarla. Las reglas también indican completar una fila de tres antes de empezar un nivel superior \cite{hasbrojenga}.
+
+\subsection{Reglas educativas que existen en el prototipo}
+Actualmente, el jugador retira una pieza y recibe una pregunta aleatoria. Una respuesta correcta permite apilar las piezas extraídas; una respuesta incorrecta solicita retirar otra pieza antes de ceder el turno. La pregunta no depende del color de la pieza. La aplicación conserva historial de preguntas durante la pestaña para evitar repeticiones hasta agotar el banco de la dificultad.
+
+\subsection{Reglas que requieren decisión del equipo}
+\begin{enumerate}
+  \item \textbf{Penalización por error.} El prototipo solicita una extracción adicional; la regla clásica limita a un bloque por turno. Validar si la penalización seguirá como regla educativa de JengaByte o si se sustituirá por puntos, reto extra u otra consecuencia.
+  \item \textbf{Piezas por turno.} Definir si una respuesta correcta apila exactamente una pieza o todas las piezas retiradas durante la penalización.
+  \item \textbf{Movimiento y turno.} Confirmar si una pieza que se mueve pero se devuelve a su posición cuenta como extracción. La regla clásica requiere corregir con una mano los bloques movidos fuera de lugar antes de tocar otro.
+  \item \textbf{Victoria.} El prototipo muestra quién hizo caer la torre. La propuesta es mostrar a esa persona como quien pierde y declarar ganador al participante anterior, acorde con la regla clásica.
+  \item \textbf{Uso de una mano.} El producto puede informar la regla, pero no puede verificarla de forma fiable con la interfaz actual.
+\end{enumerate}
+
+\subsection{Regla de elegibilidad en una torre dinámica}
+La elegibilidad no debe depender de un número de nivel fijo. Debe calcularse usando el nivel completo más alto que exista en ese momento. Un bloque es elegible cuando su nivel es estrictamente inferior a ese nivel; el nivel completo más alto queda protegido. Cuando se completa un nivel nuevo arriba, el límite avanza. La implementación debe considerar las piezas retiradas y las colocadas, no solo el nivel inicial.
+
+\section{Bucle dinámico propuesto}
+
+\begin{enumerate}
+  \item \textbf{Preparar:} mostrar jugador, estado de torre y una instrucción única para el estado actual.
+  \item \textbf{Elegir:} permitir seleccionar solo piezas válidas; ofrecer respuesta táctil y visual al toque.
+  \item \textbf{Resolver:} animar la extracción y mantener la física activa el tiempo necesario para leer estabilidad o caída.
+  \item \textbf{Retar:} presentar una pregunta breve, cuatro opciones y tema/dificultad sin cubrir la torre más de lo necesario.
+  \item \textbf{Reaccionar:} mostrar respuesta y explicación; reflejar claramente si se apila una pieza, se aplica una penalización o termina el turno.
+  \item \textbf{Cerrar:} apilar en el nivel superior válido, avanzar al siguiente participante y actualizar la ronda.
+  \item \textbf{Terminar:} al colapsar, detener entradas, mostrar perdedor y ganador, explicar el resultado y ofrecer revancha.
+\end{enumerate}
+
+La dinámica debe venir primero de la interacción física y de cambios de estado visibles. Temporizadores, rachas y eventos aleatorios quedan como experimentos de diseño por validar: pueden aumentar energía, pero también distraer del objetivo educativo o volver injusta una partida local.
+
+\section{Requisitos funcionales}
+
+\begin{longtable}{@{}p{.06\linewidth}p{.62\linewidth}p{.12\linewidth}@{}}
+\toprule
+\textbf{ID} & \textbf{Requisito} & \textbf{Historia} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{ID} & \textbf{Requisito} & \textbf{Historia} \\
+\midrule
+\endhead
+RF-01 & La preparación local tiene tres etapas: elegir 2--4 participantes, elegir dificultad y configurar perfiles antes de empezar. & HU-01 \\
+RF-02 & En la tercera etapa se edita un perfil a la vez: nombre, avatar y color; los controles permiten avanzar y retroceder entre participantes. & HU-01 \\
+RF-03 & Los perfiles inician con valores predeterminados editables. Se pueden conservar; el nombre vacío usa una etiqueta genérica. No se exige una validación de nombre no vacía. & HU-01 \\
+RF-04 & La aplicación permite elegir dificultad y selecciona preguntas únicamente del banco correspondiente. & HU-02 \\
+RF-05 & La aplicación determina dinámicamente qué piezas se pueden retirar según el nivel completo más alto. & HU-03 \\
+RF-06 & La aplicación anima la extracción y detecta desplazamiento, inclinación o caída de la torre. & HU-03 \\
+RF-07 & Después de una extracción válida, la aplicación presenta una pregunta con opciones, bloquea respuestas duplicadas y muestra retroalimentación. & HU-04 \\
+RF-08 & La aplicación aplica una consecuencia coherente con la regla aprobada para respuestas correctas e incorrectas. & HU-04 \\
+RF-09 & La aplicación apila bloques en la cima en orientación alternada, completa filas de tres y asigna identificadores únicos. & HU-05 \\
+RF-10 & La aplicación actualiza participante, ronda, piezas y estabilidad sin perder la secuencia de la partida. & HU-05 \\
+RF-11 & Si la torre cae, la aplicación termina la interacción y presenta ganador, perdedor y opción de revancha. & HU-06 \\
+RF-12 & La aplicación permite reiniciar la partida o volver al menú con confirmación cuando exista progreso. & HU-06 \\
+RF-13 & La aplicación evita repetir preguntas en la pestaña hasta agotar el conjunto de la dificultad seleccionada. & HU-02 \\
+RF-14 & La aplicación explica las reglas desde la portada y desde la partida, sin exigir una introducción bloqueante. & HU-07 \\
+\bottomrule
+\end{longtable}
+
+\section{Requisitos no funcionales}
+
+Los umbrales siguientes son criterios propuestos para la siguiente validación y deberán medirse en dispositivos acordados.
+
+\begin{longtable}{@{}p{.06\linewidth}p{.16\linewidth}p{.43\linewidth}p{.18\linewidth}@{}}
+\toprule
+\textbf{ID} & \textbf{Categoría} & \textbf{Requisito} & \textbf{Verificación propuesta} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{ID} & \textbf{Categoría} & \textbf{Requisito} & \textbf{Verificación propuesta} \\
+\midrule
+\endhead
+RNF-01 & Diseño responsivo & En los tres pasos de preparación, toda la interfaz deberá caber en la pantalla móvil sin scroll vertical ni horizontal. Controles táctiles tendrán área de al menos 44 px donde sea viable. Es un criterio de aceptación pendiente de validación en dispositivos. & Revisión en 320x740, 390x844 y alturas menores; verificar cada etapa y navegación. \\
+RNF-02 & Rendimiento & La primera acción debe poder realizarse sin esperar a que termine una animación decorativa; la interacción 3D debe mantenerse fluida en el dispositivo móvil de referencia. & Medir carga y cuadros por segundo en un Android y un iPhone acordados. \\
+RNF-03 & Usabilidad & Una persona nueva debe identificar jugador, acción actual y siguiente paso sin ayuda del facilitador. & Prueba moderada con al menos 5 participantes; registrar errores y tiempo. \\
+RNF-04 & Accesibilidad & Los controles serán operables por teclado, tendrán foco visible y nombres accesibles; el color no será la única señal de estado. & Revisión manual de flujo y auditoría WCAG 2.2 AA como objetivo. \\
+RNF-05 & Movimiento & La interfaz respetará \texttt{prefers-reduced-motion} y ofrecerá una alternativa visual cuando se reduzcan animaciones. & Probar ajustes del sistema y revisar estados de torre. \\
+RNF-06 & Compatibilidad & La experiencia funcionará en versiones actuales de Safari iOS, Chrome Android y Chrome/Firefox/Safari de escritorio. & Matriz de navegadores de la versión objetivo. \\
+RNF-07 & Privacidad & La partida no solicitará cuenta ni datos personales; los nombres serán locales y efímeros salvo decisión posterior. & Inspección de almacenamiento y tráfico de red. \\
+RNF-08 & Fiabilidad & Reiniciar no dejará temporizadores, física ni estado de una partida anterior activos. & Pruebas repetidas de reinicio durante selección, extracción, pregunta y fin. \\
+RNF-09 & Mantenibilidad & Las reglas de elegibilidad, apilado, turnos y puntuación deberán ser funciones separables de la vista 3D. & Revisión de arquitectura y cobertura de lógica propuesta de 70\%. \\
+\bottomrule
+\end{longtable}
+
+\section{Historias de usuario y criterios de aceptación}
+
+\subsection*{HU-01 · Preparar el grupo}
+Como participante, quiero elegir cuántas personas juegan y personalizar sus fichas, para reconocer los turnos en el teléfono compartido.
+\begin{itemize}
+  \item Dado que estoy en el paso 1, cuando elijo 2, 3 o 4 participantes y avanzo, entonces el paso 2 muestra la dificultad y conserva la cantidad elegida.
+  \item Dado que estoy en el paso 2, cuando elijo dificultad y avanzo, entonces el paso 3 abre la configuración individual del primer perfil.
+  \item Dado que configuro perfiles en el paso 3, cuando uso Anterior o Siguiente, entonces puedo recorrer los participantes sin perder los valores ya editados; al llegar al último, Empezar inicia la partida.
+  \item Dado que cada perfil ya trae nombre, avatar y color predeterminados, cuando esos valores me sirven, entonces puedo conservarlos sin editarlos. El código no exige completar el nombre; si queda vacío, el turno muestra una etiqueta genérica.
+  \item Dado que vuelvo a un paso anterior, cuando avanzo de nuevo, entonces se conservan cantidad, dificultad y perfiles seleccionados durante la sesión de configuración.
+\end{itemize}
+
+\subsection*{HU-02 · Elegir un reto educativo}
+Como participante, quiero elegir el nivel de preguntas y recibir retos que no se repitan de inmediato, para ajustar la partida al grupo.
+\begin{itemize}
+  \item Dada una dificultad elegida, cuando retiro una pieza, entonces aparece una pregunta de ese banco.
+  \item Dado que quedan preguntas disponibles, cuando avanza la partida, entonces no se repite una pregunta ya usada en esta pestaña.
+  \item Dado que se agotó el banco, cuando comienza otro ciclo, entonces se vuelve a mezclar sin repetir consecutivamente la última pregunta cuando haya más de una.
+\end{itemize}
+
+\subsection*{HU-03 · Retirar una pieza legal}
+Como participante, quiero saber qué bloques puedo tocar, para jugar con la regla acordada y no seleccionar una pieza inválida.
+\begin{itemize}
+  \item Dada una torre inicial de 18 niveles completos, cuando intento retirar una pieza, entonces solo puedo seleccionar una situada debajo del nivel completo más alto.
+  \item Dada una torre que creció, cuando cambia el nivel completo más alto, entonces la elegibilidad se recalcula con la torre actual.
+  \item Dado un bloque durante extracción, pregunta o caída, cuando vuelvo a tocar la torre, entonces no se inicia una segunda extracción.
+  \item Dada una pieza que no es legal, cuando la exploro, entonces no cambia el estado de la partida.
+\end{itemize}
+
+\subsection*{HU-04 · Responder y recibir consecuencia}
+Como participante, quiero responder una pregunta y ver una explicación breve, para aprender y entender qué debe ocurrir después.
+\begin{itemize}
+  \item Dada una pregunta, cuando elijo una opción, entonces las demás opciones quedan bloqueadas y se indica la respuesta correcta.
+  \item Dada una respuesta incorrecta, cuando continúa el turno, entonces se aplica exactamente la consecuencia aprobada en las reglas.
+  \item Dada una explicación extensa, cuando se muestra en celular, entonces el texto se ajusta sin ocultar la acción siguiente.
+\end{itemize}
+
+\subsection*{HU-05 · Apilar y pasar el turno}
+Como participante, quiero colocar la pieza sobre la torre con orientación correcta, para mantener la estructura y preparar el siguiente turno.
+\begin{itemize}
+  \item Dada una pieza por apilar, cuando se confirma el resultado del reto, entonces se coloca sobre el nivel superior en ángulo recto.
+  \item Dado un nivel superior con menos de tres piezas, cuando se apila otra pieza, entonces se completa ese nivel antes de crear uno más alto.
+  \item Dado un turno completado, cuando pasa al siguiente participante, entonces jugador activo, mensaje, ronda y contador coinciden.
+\end{itemize}
+
+\subsection*{HU-06 · Terminar o reiniciar}
+Como participante, quiero conocer el resultado al caer la torre y poder jugar de nuevo, para cerrar la ronda sin confusión.
+\begin{itemize}
+  \item Dada una caída detectada, cuando termina la animación, entonces no puedo retirar piezas ni responder preguntas.
+  \item Dada la regla clásica aprobada, cuando una persona derriba la torre, entonces se marca como perdedora y se identifica al ganador.
+  \item Dada una partida en curso, cuando solicito volver al menú, entonces puedo confirmar o cancelar la salida.
+  \item Dado un reinicio, cuando aparece una nueva partida, entonces torre, jugador, temporizadores, mensajes y preguntas parten de estado válido.
+\end{itemize}
+
+\subsection*{HU-07 · Entender el juego sin tutorial bloqueante}
+Como participante nuevo, quiero encontrar las reglas junto a la acción, para comenzar sin recorrer pantallas obligatorias.
+\begin{itemize}
+  \item Dada la portada, cuando necesito ayuda, entonces puedo abrir las reglas antes de iniciar.
+  \item Dada una partida, cuando necesito recordar el flujo, entonces puedo consultar las reglas sin perder el estado actual.
+  \item Dado un teléfono, cuando se muestra la acción actual, entonces la instrucción cabe en pantalla y el control principal es táctil.
+\end{itemize}
+
+\section{Backlog priorizado}
+
+La prioridad MoSCoW organiza el orden sugerido, no equivale a una fecha comprometida. Los sprints se proponen como cortes de valor y se ajustarán después de validar el cambio de reglas.
+
+\begin{longtable}{@{}p{.07\linewidth}p{.38\linewidth}p{.15\linewidth}p{.12\linewidth}p{.12\linewidth}@{}}
+\toprule
+\textbf{ID} & \textbf{Entregable} & \textbf{Prioridad} & \textbf{Iteración} & \textbf{Estado} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{ID} & \textbf{Entregable} & \textbf{Prioridad} & \textbf{Iteración} & \textbf{Estado} \\
+\midrule
+\endhead
+HU-03 & Elegibilidad dinámica con nivel completo más alto & Must & 1 & Corregir \\
+HU-05 & Apilado por filas de tres y orientación alternada & Must & 1 & Validar física \\
+HU-06 & Caída, ganador/perdedor, bloqueo de entrada y revancha & Must & 1 & Incompleto \\
+HU-01 & Preparación de 2--4 participantes y partida local & Must & 1 & Existe; pulir móvil \\
+HU-04 & Respuesta de pregunta y consecuencia única por turno & Must & 2 & Regla por validar \\
+HU-07 & Ayuda contextual no bloqueante & Should & 2 & Existe; revisar contenido \\
+HU-02 & Banco por dificultad sin repetición inmediata & Should & 2 & Existe; auditar bancos \\
+RNF-02 & Rendimiento y fluidez móvil de la torre 3D & Should & 2 & Medir \\
+RNF-04 & Accesibilidad de controles y estados & Should & 2 & Revisar \\
+DIN-01 & Medir claridad y deseo de revancha en prueba moderada & Should & 3 & Propuesto \\
+DIN-02 & Probar eventos/racha opcionales con estudiantes & Could & 3 & No aprobado \\
+DIN-03 & Guardado local de configuración o sesión & Could & 4 & No aprobado \\
+DIN-04 & Multijugador remoto o clasificación & Won't (ahora) & -- & Fuera de alcance \\
+\bottomrule
+\end{longtable}
+
+\subsection{Cortes de entrega propuestos}
+\begin{description}[leftmargin=2.1cm,style=nextline]
+  \item[Iteración 1: reglas y torre] Definir reglas educativas; arreglar elegibilidad dinámica, apilado y final de partida; validar la física en escritorio y móvil.
+  \item[Iteración 2: turno legible] Mejorar jerarquía móvil, preguntas, feedback, reinicio, accesibilidad y rendimiento.
+  \item[Iteración 3: dinamismo validado] Probar con grupos; comparar partida actual con una variante de evento o racha; decidir si la variante añade diversión y aprendizaje.
+  \item[Iteración 4: pulido] Corregir incidencias de la prueba y decidir qué funciones opcionales quedan dentro del producto.
+\end{description}
+
+\section{Modelo de estados}
+
+\begin{center}
+\fbox{\parbox{.91\linewidth}{
+\centering
+Configuración $\rightarrow$ Selección de pieza $\rightarrow$ Extracción física $\rightarrow$ Pregunta $\rightarrow$ Resultado\\[4pt]
+$\downarrow$\\[2pt]
+Apilar / aplicar consecuencia acordada $\rightarrow$ Actualizar estado y turno $\rightarrow$ Selección de pieza\\[4pt]
+Si la torre cae en cualquier movimiento: \textbf{Fin de partida $\rightarrow$ resultado y revancha}
+}}
+\end{center}
+
+La implementación debe hacer explícitas las transiciones. Una animación no puede dejar la partida indefinidamente en extracción; una respuesta no puede procesarse dos veces; y una caída debe cancelar temporizadores pendientes.
+
+\section{Plan de pruebas}
+
+\subsection{Pruebas de reglas}
+\begin{enumerate}
+  \item Construir torre inicial y comprobar 54 piezas, tres por nivel, 18 niveles y orientación alternada.
+  \item Comprobar legalidad contra el nivel completo más alto al inicio, al extraer de niveles inferiores y después de completar niveles nuevos.
+  \item Apilar 1, 2, 3 y más de 3 piezas en una partida de prueba; verificar filas completas, orientación, alturas y ausencia de IDs duplicados.
+  \item Ejecutar respuesta correcta, respuesta incorrecta, extracción adicional si se conserva, reinicio y fin por caída.
+  \item Validar que retirar o colocar un bloque actualiza la estabilidad y el contador de manera coherente.
+\end{enumerate}
+
+\subsection{Pruebas de interfaz y dispositivos}
+\begin{itemize}
+  \item Viewports: 320$\times$740, 390$\times$844, 768$\times$1024 y 1440$\times$900. En móviles, revisar que cada uno de los tres pasos de preparación cabe sin scroll vertical.
+  \item En preparación, verificar secuencia, selección 2/3/4, dificultad, controles Atrás, Anterior/Siguiente y persistencia de los valores al navegar.
+  \item Navegadores objetivo: Safari en iOS, Chrome en Android y navegadores de escritorio acordados.
+  \item Revisar recorte, zonas táctiles, scroll, enfoque visible, lector de pantalla, alto contraste y movimiento reducido.
+  \item Revisar el flujo completo con nombres cortos/largos, 2--4 participantes, cada dificultad, errores consecutivos y una torre que cae.
+\end{itemize}
+
+\subsection{Pruebas con participantes}
+Realizar una prueba moderada con estudiantes de la facultad. Registrar si entienden qué pieza pueden retirar, qué ocurre tras acertar/fallar, quién ganó, cuántos turnos completan, cuánto tarda cada turno y en qué momento abandonan. Como objetivo preliminar, al menos 4 de 5 participantes deberían iniciar y completar una ronda sin explicación externa; si no se cumple, revisar instrucciones y jerarquía antes de añadir mecánicas.
+
+\section{Riesgos y decisiones pendientes}
+
+\begin{longtable}{@{}p{.20\linewidth}p{.36\linewidth}p{.28\linewidth}@{}}
+\toprule
+\textbf{Tema} & \textbf{Riesgo} & \textbf{Decisión/acción} \\
+\midrule
+Regla de extracción & Una regla fija puede permitir piezas inválidas después de que la torre crece. & Implementar la regla basada en el nivel completo más alto y cubrirla con pruebas. \\
+Penalización académica & Exigir otra extracción rompe la regla clásica y aumenta la duración del turno. & Validar con docente y estudiantes; mantenerla solo si aporta al aprendizaje y se comunica claramente. \\
+Estabilidad simulada & Un porcentaje matemático puede sugerir una precisión física que no representa Rapier. & Presentarlo como indicador visual relativo o reemplazarlo por estados observables (estable, se mueve, cayó). \\
+Rendimiento 3D & La simulación y el paquete inicial son pesados para teléfonos modestos. & Medir en dispositivos reales y priorizar carga/fluidez antes de efectos extra. \\
+Color de categoría & Los colores pueden confundirse o no ser distinguibles. & Mantener nombre/ícono además del color y probar contraste. \\
+Modal al tocar la torre y parpadeo del resaltado & Reporte de usuario pendiente de reproducir. La inspección del flujo no encontró evidencia de que tocar una pieza abra un modal de configuración; los clics de piezas elegibles invocan la selección de bloque. El origen del parpadeo tampoco está determinado. & Mantener como incidencia abierta; reproducir en móvil, registrar video/consola y revisar eventos de puntero, foco y estados visuales antes de atribuir causa o marcar resolución. \\
+Dinámica adicional & Relojes, rachas y eventos pueden volver injusto el juego o distraer del reto. & Probar prototipos como variantes; no incluirlos por defecto sin evidencia. \\
+\bottomrule
+\end{longtable}
+
+\section{Trazabilidad respecto al documento de referencia}
+
+El PDF de referencia aporta el formato de trabajo (contexto, actores, RF/RNF, historias con aceptación, MoSCoW, iteraciones y pruebas). Sus usuarios, problema, datos y requisitos de gestión de actividades no se trasladan al nuevo producto, porque corresponden a otro sistema. La trazabilidad de esta especificación parte del README y del prototipo de JengaByte: configuración local, preguntas, torre 3D, física y flujo de turnos.
+
+\section{Conclusión}
+
+JengaByte ya cuenta con una base funcional para una partida educativa local. El siguiente avance de mayor valor es corregir la regla dinámica de elegibilidad y apilado, cerrar el resultado de victoria/derrota, y validar la experiencia en teléfonos. Una vez estable la partida base, se pueden probar mecánicas dinámicas opcionales sin confundir ideas experimentales con requisitos aprobados.
+
+\begin{thebibliography}{9}
+\bibitem{backlogreferencia}
+Soriano Cazabal, J. R. y Urdiales de la Cruz, H. J. (2026).
+\emph{Sistema web para gestionar actividades universitarias: Sesión 1, Actividad 1, Construyamos el backlog}. Documento de referencia entregado por el equipo (PDF, 8 pp.). Se reutiliza su estructura metodológica; su alcance funcional pertenece a otro proyecto.
+
+\bibitem{hasbrojenga}
+Hasbro. \emph{Jenga: instrucciones oficiales del juego clásico}.
+\url{https://www.hasbro.com/common/instruct/jenga.pdf}. Consulta: \today.
+\end{thebibliography}
+
+\end{document}

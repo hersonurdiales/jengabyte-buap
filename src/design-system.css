@@ -1,0 +1,369 @@
+/* JengaByte: identity, surfaces and responsive behavior. */
+:root{
+  --brand-ink:#203548;
+  --brand-navy:#122e48;
+  --brand-blue:#09b5e2;
+  --brand-coral:#c96848;
+  --brand-paper:#f5f3ed;
+  --brand-line:#dce3e8;
+  --clay-bg:var(--brand-paper);
+  --clay-hi:#fff;
+  --clay-low:#dce1e5;
+  --clay-blue:var(--brand-navy);
+  --clay-blue-2:var(--brand-blue);
+  --clay-shadow:0 12px 32px #193b5812;
+  --clay-shadow-sm:0 3px 10px #193b5810;
+  --clay-inset:inset 0 0 0 1px var(--brand-line);
+}
+
+html{scroll-behavior:smooth;scroll-padding-top:12px;background:var(--brand-paper)}
+body,.app-shell{background:var(--brand-paper);color:var(--brand-ink);overscroll-behavior-y:contain}
+button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+button:focus-visible,input:focus-visible{outline-color:var(--brand-blue);outline-offset:3px}
+.topbar{position:relative;z-index:6;background:var(--brand-navy);box-shadow:0 8px 24px #14355020}
+.brand{color:#fff}.brand b{color:#f1a078}.brand-mark{background:#fff;color:var(--brand-navy);box-shadow:none}
+.brand-product{font-weight:800;letter-spacing:.12em}.buap-wordmark{display:block;width:48px;height:auto;margin-left:2px}.how-to-kicker img{display:block;width:78px;height:auto}.lobit-welcome-kicker img{width:44px;height:auto}.game-footer img{display:inline-block;width:42px;height:auto;vertical-align:middle;margin:0 3px}
+.top-context{color:#d6e3ee}.session-badge{background:#f3f6f8;color:var(--brand-navy);box-shadow:none}
+.welcome h1 em,.game-heading h1 em{color:var(--brand-coral)}
+.welcome-art{border:1px solid var(--brand-line);background:#e9eff3;box-shadow:0 16px 36px #173f6314}
+.welcome-art::before{border-color:#cbd8e2}
+.setup,.left-rail,.stage,.right-rail,.turn-card,.question-card,.instruction-card{border:1px solid var(--brand-line);box-shadow:0 8px 24px #193b580a}
+.setup{background:#fff;padding:18px;border-radius:18px}
+.name-fields label,.setup-player{background:#f7f9fa;box-shadow:none;border:1px solid var(--brand-line)}
+.player-count button,.avatar-picker button,.how-to-button,.round-info button,.stage-top button{box-shadow:none;border:1px solid #d5dfe7;background:#fff}
+.player-count button.selected,.difficulty-picker button.selected{background:var(--brand-navy);color:#fff;box-shadow:none;border-color:var(--brand-navy)}
+.start-button,.continue-button,.lobit-welcome-next{min-height:48px;background:var(--brand-navy);box-shadow:0 5px 12px #173f6328}
+.start-button:hover,.continue-button:hover,.lobit-welcome-next:hover{background:var(--brand-blue)}
+.category-list>div,.player{box-shadow:none;border:1px solid var(--brand-line)}
+.player.active{box-shadow:inset 0 0 0 1px var(--brand-navy);background:#f1f6fa}
+.canvas-wrap{background:#e8eef2;box-shadow:none;border:1px solid #d3dfe7}
+.tower-status.vertical,.stage-caption,.turn-card .wolf-guide,.question-card,.instruction-card{box-shadow:none}
+.turn-card,.question-card{background:#fff}
+.turn-card .wolf-guide{background:#f4f7f9;border:1px solid #e0e7ec;border-left:4px solid var(--brand-blue)}
+.answers button{box-shadow:none;border:1px solid #d8e1e8;background:#f8fafb}
+.answers button:hover:not(:disabled){box-shadow:0 3px 10px #173f6315}
+.continue-button{box-shadow:0 6px 14px #173f6322}
+.welcome-mascot>div{box-shadow:none;border:1px solid #d7e0e7}
+.game-footer{color:#63788a}
+.canvas-wrap canvas{touch-action:pan-y!important}
+
+@media(max-width:800px){
+  .app-shell{padding-inline:clamp(12px,4vw,22px)}
+  .welcome{min-height:0;grid-template-columns:minmax(0,1fr);padding-top:6px}
+  .welcome-art{order:0;min-height:clamp(260px,68vw,390px);margin:8px 0 4px}
+  .welcome-copy{order:1;padding:12px 0 26px}
+  .welcome h1{font-size:clamp(48px,12vw,68px);margin:16px 0 12px}
+  .welcome-copy>p{font-size:14px;line-height:1.6;margin-bottom:17px}
+  .setup{max-width:none;margin-top:14px;padding:16px}
+  .name-fields{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .game-heading{display:flex;flex-wrap:nowrap;align-items:center;justify-content:space-between;gap:8px;padding:9px 2px}
+  .game-heading .eyebrow{display:none}
+  .game-heading h1{margin:0;font-size:30px;line-height:1}
+  .round-info{width:auto;flex:0 0 auto;align-items:center;gap:6px}
+  .round-info>span,.round-info>b{display:none}
+  .round-info button{width:40px;height:40px;justify-content:center;padding:0;margin:0;font-size:0;letter-spacing:0}
+  .round-info button svg{width:17px;height:17px}
+  .game-layout{display:flex;flex-direction:column;min-height:0;gap:12px}
+  .left-rail{order:0;position:relative;display:flex;flex-direction:column;align-items:stretch;gap:6px;padding:10px 12px;border-radius:16px;background:#fff;box-shadow:0 4px 14px #173f630c}
+  .left-rail>.rail-label:first-child{margin:0;font-size:9px}
+  .left-rail>.rail-label:not(:first-child),.left-rail>.category-list{display:none}
+  .left-rail>.players{display:flex;gap:8px;overflow-x:auto;overscroll-behavior-x:contain;padding:0 0 3px;scrollbar-width:thin}
+  .player{min-width:110px;height:40px;flex:0 0 auto}
+  .player-avatar{width:30px;height:30px}
+  .stage{order:1;min-height:0;padding:8px}
+  .stage-top{height:auto;min-height:44px;gap:8px;flex-wrap:wrap;padding:4px 7px}
+  .stage-top>span{font-size:9px}
+  .tower-stage-row{min-height:clamp(300px,82vw,390px);gap:5px}
+  .canvas-wrap{min-height:0;flex:1}
+  .tower-status.vertical{align-self:stretch;width:52px;flex-basis:52px;background:#fff;border:1px solid var(--brand-line)}
+  .stage-caption{display:flex;justify-content:flex-start;gap:8px;padding:9px 10px;background:#fff;border:1px solid var(--brand-line)}
+  .stage-caption span:first-child,.stage-caption span:nth-child(2){display:none}
+  .stage-caption span:last-child{max-width:none;font-size:9px;color:#536b7e}
+  .stage-caption span:last-child b{color:var(--brand-coral)}
+  .right-rail{order:2;display:flex;overflow:visible;padding:0;background:transparent;box-shadow:none}
+  .right-rail:has(.question-card) .question-card{order:0}
+  .right-rail:has(.question-card) .turn-card{order:1}
+  .turn-card,.question-card,.instruction-card{width:100%;border-radius:18px}
+  .question-card{padding:17px}
+  .question-card h3{font-size:clamp(18px,5vw,22px);margin:12px 0 16px}
+  .answers{gap:10px}
+  .answers button{min-height:52px;font-size:14px;padding:10px 12px}
+  .answers button .answer-letter{width:30px;height:30px}
+  .continue-button{position:sticky;bottom:10px;z-index:5;width:100%;justify-content:center;min-height:50px;border:3px solid #fff;box-shadow:0 7px 22px #173f6340}
+}
+
+@media(max-width:420px){
+  .top-context{display:none}
+  .topbar{height:56px;border-radius:14px;padding-inline:11px}
+  .brand{font-size:9px;letter-spacing:.05em}
+  .buap-wordmark{width:38px}
+  .brand-mark{width:28px;height:28px}
+  .session-badge{font-size:6px;padding:7px 8px}
+  .welcome-art{min-height:260px}
+  .setup{padding:13px}
+  .name-fields{grid-template-columns:1fr}
+  .setup-player{padding:8px}
+}
+
+.brand-symbol{width:36px;height:36px;display:block;flex:none;border-radius:11px}
+.setup-title{font-size:10px;color:#122e48}
+.setup-note{color:#71869a;font-size:8px}
+.player-count{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:10px 0 15px}
+.player-count button{position:relative;width:auto;height:58px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:2px;padding:6px 11px;border:1px solid #d5dfe7;border-radius:12px;background:#fff;color:#526b80;text-align:left}
+.player-count button b{font-size:15px;line-height:1;color:inherit}
+.player-count button span{font-size:8px;color:inherit;opacity:.8}
+.player-count button.selected{border:2px solid #122e48;background:#122e48;color:#fff}
+.player-count button.selected::after{content:'✓';position:absolute;top:7px;right:8px;display:grid;place-items:center;width:16px;height:16px;border-radius:50%;background:#09b5e2;color:#122e48;font-size:10px;font-weight:900}
+.name-fields{grid-template-columns:1fr;gap:9px}
+.setup-player{padding:12px;border-radius:15px;background:#f8fafb}
+.setup-player-name{height:auto;min-height:25px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 0 8px;border:0}
+.player-card-number{font-size:8px!important;letter-spacing:.13em;color:#6c8294!important;font-weight:800}
+.player-preview{width:30px;height:30px;flex:none;display:grid;place-items:center;border:2px solid white;border-radius:50%;background:var(--choice-color);box-shadow:0 0 0 1px #d0dce5;font-size:16px}
+.name-fields .player-name-label{display:block;height:auto;margin:0 0 4px;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;font-size:8px;font-weight:800;letter-spacing:.1em;color:#6d8295;text-transform:uppercase}
+.name-fields input.player-name-input{display:block;width:100%;height:40px;margin:0;padding:0 11px;border:1px solid #d5dfe7;border-radius:10px;background:#fff;color:#203548;font-size:13px;font-weight:600}
+.player-name-input::placeholder{color:#98a6b3;font-weight:400}
+.player-customize{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:8px;padding-top:10px}
+.player-customize-group{display:flex;flex-direction:column;gap:5px;min-width:0}
+.customize-label{font-size:7px;font-weight:800;letter-spacing:.11em;color:#71869a}
+.avatar-picker{gap:4px}
+.avatar-picker button{width:29px;height:29px;border:1px solid #dce4ea;border-radius:9px;background:#fff;font-size:17px}
+.avatar-picker button.chosen{border:2px solid #122e48;background:#eaf3f7;box-shadow:0 0 0 2px #09b5e229}
+.color-picker{gap:7px;min-height:29px}
+.color-picker button{width:17px;height:17px}
+.difficulty-control{margin:16px 0}
+.difficulty-label{font-size:8px;letter-spacing:.12em;color:#526d84}
+.difficulty-picker{gap:8px}
+.difficulty-picker button{position:relative;height:auto;min-height:53px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:3px;padding:8px 9px;border:1px solid #d5dfe7;border-radius:11px;background:#fff;color:#526b80;text-align:left}
+.difficulty-picker button>span{font-size:10px;line-height:1.1}
+.difficulty-picker button>small{font-size:7px;line-height:1.2;color:inherit;opacity:.78}
+.difficulty-picker button.selected{border:2px solid #122e48;background:#122e48;color:#fff}
+.difficulty-picker button.selected::after{content:'✓';position:absolute;top:5px;right:6px;color:#74daf3;font-size:10px;font-weight:900}
+.difficulty-control>.question-bank-hint{margin-top:7px;font-size:8px;color:#71869a}
+.setup-player-nav{display:none}
+
+@media(max-width:800px){
+  .brand-symbol{width:32px;height:32px}
+  .player-count{gap:7px;margin:9px 0 12px}
+  .player-count button{height:53px;padding:5px 9px}
+  .player-count button b{font-size:14px}
+  .player-count button span{font-size:7px}
+  .setup-player{padding:10px}
+  .player-name-input{height:38px}
+  .player-customize{padding-top:8px}
+  .avatar-picker button{width:27px;height:27px;font-size:16px}
+  .color-picker{gap:6px;min-height:27px}
+  .color-picker button{width:15px;height:15px}
+  .difficulty-control{margin:13px 0}
+  .difficulty-picker{gap:6px}
+  .difficulty-picker button{min-height:49px;padding:7px}
+  .difficulty-picker button>span{font-size:9px}
+  .difficulty-picker button>small{font-size:6px}
+  .setup-player-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:2px 0 8px}
+  .setup-player-nav>b{font-size:8px;letter-spacing:.12em;color:#526d84}
+  .setup-player-nav>b i{padding:0 4px;color:#a6b4c0;font-style:normal}
+  .setup-player-nav>button{min-height:34px;display:flex;align-items:center;gap:4px;padding:0 9px;border:1px solid #d5dfe7;border-radius:10px;background:#fff;color:#36536d;font-size:9px;font-weight:700}
+  .setup-player-nav>button:disabled{opacity:.38}
+.setup-back{margin-left:auto;display:inline-flex;align-items:center;gap:4px;padding:3px 7px;border:0;border-radius:8px;background:#e8eef6;color:#36536d;font:inherit;font-size:9px;font-weight:700;cursor:pointer}
+.setup-step-0 .difficulty-control,.setup-step-0 .participant-config,.setup-step-1 .player-count,.setup-step-1 .participant-config,.setup-step-2 .player-count,.setup-step-2 .difficulty-control{display:none}
+.setup-step-0 .player-count,.setup-step-1 .difficulty-control,.setup-step-2 .participant-config{display:block}
+.setup-step-0 .player-count{display:flex}
+.setup-step-hint{display:none}
+  .name-fields .setup-player:not(.current){display:none}
+  .name-fields .setup-player.current{display:block;animation:player-card-in .18s ease-out both}
+  @keyframes player-card-in{from{opacity:.55;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+}
+
+@media(max-width:360px){
+  .player-customize{grid-template-columns:1fr;gap:7px}
+  .player-customize-group{flex-direction:row;align-items:center;justify-content:space-between}
+  .difficulty-picker button>small{font-size:5px}
+}
+
+@media(min-width:1200px){
+  .name-fields{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .setup-player{padding:9px}
+  .player-customize{grid-template-columns:1fr;gap:5px}
+  .player-customize-group{flex-direction:row;align-items:center;justify-content:space-between;gap:5px}
+  .customize-label{width:68px;flex:none;font-size:6px}
+  .avatar-picker{gap:1px}
+  .avatar-picker button{width:19px;height:24px;font-size:13px}
+  .color-picker{min-height:24px;gap:5px}
+  .color-picker button{width:13px;height:13px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .name-fields .setup-player.current{animation:none}
+}
+
+/* Keep the institutional identity visible even when the page is opened mid-scroll. */
+.welcome-art .art-tag{
+  top:16px;left:16px;right:auto;z-index:4;display:flex;align-items:center;gap:9px;
+  padding:9px 12px;border:1px solid #d5e1e9;border-radius:14px;background:#ffffffed;
+  box-shadow:0 4px 12px #122e4812;color:#122e48;letter-spacing:.1em;
+}
+.welcome-art .art-tag img{display:block;width:54px;height:auto}
+.welcome-art .art-brand-name{padding-left:9px;border-left:1px solid #d5e1e9;color:#122e48;font-size:9px}
+.welcome-art .art-tag small{color:#71869a;font-size:7px;letter-spacing:.09em}
+
+@media(max-width:800px){
+  .app-shell{padding-inline:14px}
+  .topbar{height:62px;margin:8px 0 10px;padding-inline:12px;border-radius:15px;background:#122e48}
+  .brand{gap:8px;color:#fff}
+  .brand-mark{width:30px;height:30px;background:#fff;color:#122e48}
+  .brand-product{font-size:10px;letter-spacing:.1em}
+  .buap-wordmark{width:50px}
+  .welcome-art{min-height:270px;margin:8px 0 13px;border-radius:19px}
+  .welcome-art .art-tag{top:12px;left:12px;padding:7px 9px;gap:7px}
+  .welcome-art .art-tag img{width:46px}
+  .welcome-art .art-brand-name{font-size:8px;padding-left:7px}
+  .welcome-art .art-tag small{font-size:6px}
+  .tower-piece-count{top:24%;left:6%}
+  .welcome-mascot img{width:92px;height:132px}
+  .welcome-copy{padding:10px 0 24px}
+  .welcome h1{font-size:clamp(46px,11vw,62px);margin:15px 0 10px}
+  .welcome-copy>p{max-width:42ch;margin-bottom:12px;font-size:13px;line-height:1.5}
+  .setup{margin-top:12px;padding:14px;border-radius:17px}
+  .player-count{margin:9px 0}
+  .name-fields{grid-template-columns:1fr}
+  .setup-player{padding:9px}
+  .start-button{margin-top:13px}
+  .welcome-bottom{margin-top:13px}
+  .game-heading{padding:11px 2px 12px}
+  .game-heading h1{font-size:29px}
+  .game-layout{gap:10px}
+  .left-rail{padding:9px 10px;gap:4px}
+  .left-rail>.rail-label:first-child{font-size:8px}
+  .player{min-width:100px;height:38px}
+  .stage{padding:7px}
+  .stage-top{min-height:40px}
+  .tower-stage-row{position:relative;min-height:clamp(320px,96vw,390px);gap:0}
+  .tower-status.vertical{position:absolute;z-index:3;top:8px;left:8px;width:auto;flex:0 0 auto;flex-direction:row;align-items:center;justify-content:flex-start;gap:9px;padding:7px 10px;border:1px solid #d3dfe8;border-radius:12px;background:#ffffffed;box-shadow:0 3px 10px #122e4815;text-align:left}
+  .tower-status.vertical .status-head{flex-direction:row;align-items:center;gap:7px}
+  .tower-status.vertical .status-head span{font-size:7px}
+  .tower-status.vertical .status-head b{font-size:7px;padding:4px 6px}
+  .tower-status.vertical .vertical-count{flex-direction:row;gap:4px;border-left:1px solid #d9e2e9;padding-left:8px}
+  .vertical-count b{font-size:16px}
+  .vertical-count span{font-size:6px}
+  .vertical-initial{display:none}
+  .tower-stage-row>.canvas-wrap{width:100%;min-height:0}
+  .stage-caption{min-height:36px;margin-top:6px;padding:7px 9px}
+  .stage-caption span:last-child{font-size:8px}
+  .right-rail{gap:9px}
+  .turn-card{padding:13px}
+  .turn-card h2{font-size:24px}
+  .turn-card .wolf-guide{min-height:0;padding:8px}
+  .turn-card .wolf-portrait{width:52px;height:58px}
+  .turn-card .wolf-copy p{font-size:11px}
+  .question-card{padding:15px}
+  .game-footer{min-height:38px;height:auto;gap:8px;flex-wrap:wrap;padding:8px 2px;font-size:7px}
+}
+
+@media(max-width:420px){
+  .topbar{height:60px}
+  .brand-product{font-size:9px}
+  .buap-wordmark{width:44px}
+  .welcome-art{min-height:250px}
+  .welcome-art .art-tag small{display:none}
+  .tower-stage-row{min-height:clamp(310px,88vw,355px)}
+}
+
+@media(min-width:851px) and (max-height:950px){
+  .welcome-copy{padding-top:4vh;padding-bottom:14px}
+  .welcome h1{font-size:clamp(58px,6vw,78px);margin:18px 0 12px}
+  .welcome-copy>p{font-size:13px;line-height:1.55;margin-bottom:16px}
+  .setup{padding:14px;margin-top:14px}
+  .player-count{margin:10px 0}
+  .name-fields{gap:8px}
+  .welcome-bottom{margin-top:12px}
+}
+
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+/* Phone setup reserves space for the full player controls and action. */
+@media(max-width:560px){
+  .app-shell.is-setup{position:relative;height:100dvh;min-height:0;padding:0 10px;overflow:hidden}
+  .app-shell.is-setup .app-content{height:100%;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+  .app-shell.is-setup .topbar{height:7dvh;min-height:42px;flex:0 0 7dvh;margin:0;padding:0 10px;border-radius:0 0 14px 14px}
+  .app-shell.is-setup .brand{gap:6px}
+  .app-shell.is-setup .brand-symbol{width:30px;height:30px}
+  .app-shell.is-setup .brand-product{font-size:9px;letter-spacing:.08em}
+  .app-shell.is-setup .buap-wordmark{width:42px}
+  .app-shell.is-setup .top-context{display:none}
+  .session-badge{font-size:6px;padding:7px;border-radius:9px}
+  .app-shell.is-setup .session-badge{display:none}
+  .app-shell.is-setup .how-to-button{position:fixed;z-index:10;top:calc(5dvh - 16px);right:16px;display:grid;place-items:center;width:32px;height:32px;margin:0;padding:0;border:1px solid #ffffff55;border-radius:9px;background:#ffffff14;box-shadow:none;color:#fff;font-size:0}
+  .app-shell.is-setup .welcome{height:93dvh;min-height:0;flex:0 0 93dvh;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:65dvh 18dvh 10dvh;gap:0;padding:0}
+  .welcome-copy,.setup{display:contents}
+  .welcome .eyebrow,.welcome h1,.welcome-copy>p,.welcome-bottom,.setup-title{display:none}
+  .welcome .how-to-button{display:grid}
+  .welcome-art{grid-column:1;grid-row:1;height:65dvh;min-height:0;margin:0;border-radius:16px;background:#e8eef6}
+  .welcome-art::before{inset:8px;border-radius:11px}
+  .welcome-art .art-tag,.welcome-mascot,.tower-piece-count{display:none}
+  .welcome-tower{inset:55px 0 0;width:100%}
+  .welcome-tower canvas{width:100%;height:100%}
+  .player-count{position:absolute;z-index:5;top:22px;left:10px;width:37%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px;margin:0}
+  .player-count button{height:27px;min-height:27px;align-items:center;justify-content:center;padding:2px;border-radius:8px}
+  .player-count button b{font-size:11px}
+  .setup-step-0 .player-count button span{display:block;font-size:7px}
+  .player-count button span{display:none}
+  .player-count button.selected::after{top:-4px;right:-3px;width:12px;height:12px;font-size:8px}
+  .setup-title{position:absolute;z-index:6;top:7px;left:11px;display:block;font-size:6px;line-height:1;letter-spacing:.08em}
+  .setup-title>span:first-child,.setup-note{display:none}
+  .difficulty-control{position:absolute;z-index:5;top:5px;right:10px;width:58%;display:block;margin:0}
+  .difficulty-label{display:block;margin:0 0 3px;font-size:6px;line-height:1}
+  .difficulty-picker{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px}
+  .difficulty-picker button{height:27px;min-height:27px;align-items:center;justify-content:center;padding:2px 4px;border-radius:8px}
+  .difficulty-picker button>span{font-size:7px}
+  .difficulty-picker button>small,.difficulty-picker button.selected::after,.difficulty-control>.question-bank-hint{display:none}
+  .participant-config{grid-column:1;grid-row:2;height:18dvh;min-height:0;display:grid;grid-template-rows:20px minmax(0,1fr);gap:2px;overflow:hidden}
+  .setup-step-0 .player-count{top:34px;left:10px;width:calc(100% - 20px);grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  .setup-step-0 .player-count{display:grid}
+  .setup-step-0 .player-count button{height:62px;min-height:62px;flex-direction:column;gap:4px;border-radius:13px;font-size:11px}
+  .setup-step-0 .player-count button span{font-size:8px}
+  .setup-step-1 .difficulty-control{top:34px;left:10px;right:10px;width:auto}
+  .setup-step-1 .difficulty-control{display:block}
+  .setup-step-1 .difficulty-label{font-size:8px;margin-bottom:7px}
+  .setup-step-1 .difficulty-picker{gap:7px}
+  .setup-step-1 .difficulty-picker button{height:52px;min-height:52px;flex-direction:column;gap:4px;border-radius:12px}
+  .setup-step-1 .difficulty-picker button>span{font-size:9px}
+  .setup-step-1 .difficulty-picker button>small{display:block;font-size:7px}
+  .setup-step-0 .setup-title,.setup-step-1 .setup-title{font-size:8px}
+  .setup-back{font-size:7px}
+  .setup-step-0 .participant-config,.setup-step-1 .participant-config{display:none}
+  .setup-step-0 .setup-step-hint,.setup-step-1 .setup-step-hint{position:fixed;z-index:11;left:0;right:0;bottom:calc(clamp(44px, 10dvh, 72px) + max(8px, env(safe-area-inset-bottom, 0px)) + 12px);display:flex;align-items:center;justify-content:center;gap:6px;height:20px;color:#5e7489;font-size:9px}
+  .setup-step-hint b{padding:7px 11px;border:1px solid #d4dfeb;border-radius:999px;background:#f8fafc;color:#173f63;font-size:9px}
+  .setup-step-2 .setup-title{display:flex}
+  .setup-step-2 .participant-config{display:grid}
+  .setup-step-2 .difficulty-control,.setup-step-2 .player-count{display:none}
+  .setup-step-2 .start-button{font-size:11px}
+  .setup-player-nav{min-height:20px;display:flex;align-items:center;justify-content:space-between;margin:0;padding:0 2px}
+  .setup-player-nav>b{font-size:6px}
+  .setup-player-nav>button{min-height:18px;height:18px;padding:0 7px;border-radius:7px;font-size:7px}
+  .name-fields{height:100%;min-height:0;display:grid;grid-template-columns:minmax(0,1fr);gap:0;overflow:hidden}
+  .name-fields .setup-player:not(.current){display:none}
+  .name-fields .setup-player.current{height:100%;min-height:0;display:grid;grid-template-rows:18px 8px 25px minmax(0,1fr);gap:1px;padding:4px 8px;border-radius:10px;animation:none}
+  .setup-player-name{min-height:18px;padding:0;align-items:center}
+  .player-card-number{font-size:6px!important}
+  .player-preview{width:18px;height:18px;font-size:11px}
+  .name-fields .player-name-label{height:8px;margin:0;font-size:5px;line-height:8px}
+  .name-fields input.player-name-input{height:25px;min-height:25px;padding:0 8px;border-radius:7px;font-size:10px}
+  .player-customize{min-height:0;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:5px;padding-top:2px}
+  .player-customize-group{min-width:0;gap:2px}
+  .customize-label{font-size:5px;line-height:1}
+  .avatar-picker{gap:2px}
+  .avatar-picker button{width:20px;height:20px;border-radius:6px;font-size:12px}
+  .color-picker{min-height:20px;gap:4px}
+  .color-picker button{width:11px;height:11px}
+  .start-button{position:fixed;z-index:20;left:10px;right:10px;bottom:max(8px, env(safe-area-inset-bottom, 0px));display:flex;width:auto;height:clamp(44px, 10dvh, 72px);min-height:44px;align-self:auto;align-items:center;justify-content:center;gap:10px;margin:0;border-radius:11px;padding:0 16px;color:#fff;-webkit-text-fill-color:#fff;font-size:11px}
+  .welcome .start-button{justify-content:center}
+}
+
+@media(max-width:560px) and (max-height:700px){
+  .app-shell.is-setup .topbar{height:7dvh;min-height:0;flex-basis:7dvh}
+  .app-shell.is-setup .welcome{height:93dvh;flex-basis:93dvh;grid-template-rows:56dvh 27dvh 10dvh}
+  .welcome-art{height:56dvh}
+  .participant-config{height:27dvh;grid-template-rows:22px minmax(0,1fr)}
+  .name-fields .setup-player.current{grid-template-rows:20px 8px 27px minmax(0,1fr);padding:5px 9px}
+  .name-fields input.player-name-input{height:27px;min-height:27px}
+  .avatar-picker button{width:22px;height:22px}
+}
